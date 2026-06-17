@@ -1,0 +1,16 @@
+# Dependencies
+node_modules/
+
+# macOS
+.DS_Store
+
+# Environment / secrets — never commit
+.env
+.env.*
+
+# Python caches (if any tooling lands here)
+__pycache__/
+*.pyc
+
+# Editor
+*.code-workspace

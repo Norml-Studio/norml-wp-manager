@@ -1,0 +1,13 @@
+{
+  "schema_version": 4,
+  "site_name": "acme-marketing",
+  "production_url": "https://acme.com",
+  "wp_user": "acme-editor",
+  "env": "desktop",
+  "secret_store": {
+    "kind": "portable-file",
+    "ref": "credential"
+  },
+  "created_at": "2026-06-16T12:00:00Z",
+  "last_scan_at": "2026-06-16T12:00:30Z"
+}

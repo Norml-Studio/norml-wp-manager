@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>norml-wp-manager — skill guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#18181b; --ink-2:#3f3f46; --muted:#71717a; --faint:#a1a1aa;
+    --line:#e4e4e7; --line-2:#d4d4d8; --paper:#ffffff; --bg:#f4f4f5;
+    --lime:#c5f04b; --lime-deep:#aadb2e;
+    --sans:'Inter',system-ui,-apple-system,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  body{
+    font-family:var(--sans); color:var(--ink); background:var(--bg);
+    line-height:1.5; font-feature-settings:"cv02","cv03","cv04","cv11";
+    padding:clamp(16px,4vw,56px) clamp(12px,4vw,32px); display:flex; justify-content:center;
+  }
+  .card{
+    width:100%; max-width:880px; background:var(--paper);
+    border:1px solid var(--line); border-radius:18px;
+    box-shadow:0 1px 2px rgba(24,24,27,.04),0 12px 40px -12px rgba(24,24,27,.10);
+    overflow:hidden; animation:rise .5s cubic-bezier(.2,.7,.2,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  @media (prefers-reduced-motion:reduce){.card{animation:none}}
+  .crumb{display:flex; align-items:center; gap:8px; padding:16px clamp(20px,4vw,40px) 0;
+    font:500 11.5px/1 var(--mono); letter-spacing:.02em; color:var(--faint); text-transform:uppercase}
+  .crumb b{color:var(--muted);font-weight:600}
+  header{padding:14px clamp(20px,4vw,40px) 26px; border-bottom:1px solid var(--line)}
+  .titlerow{display:flex; align-items:flex-start; justify-content:space-between; gap:16px}
+  h1{font:700 clamp(26px,4.6vw,38px)/1.05 var(--mono); letter-spacing:-.02em; word-break:break-word}
+  .ver{flex:none; display:inline-flex; align-items:center; gap:7px; font:600 12px/1 var(--mono);
+    color:var(--ink-2); background:var(--bg); border:1px solid var(--line); padding:7px 11px;
+    border-radius:999px; white-space:nowrap; margin-top:6px}
+  .ver .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 3px rgba(197,240,75,.25)}
+  .pitch{margin-top:16px; font-size:clamp(16px,2.4vw,19px); line-height:1.45; color:var(--ink-2); max-width:62ch}
+  .pitch .mk{background:linear-gradient(transparent 58%, var(--lime) 58%, var(--lime) 92%, transparent 92%);
+    padding:0 1px; font-weight:600; color:var(--ink)}
+  .tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:18px}
+  .tag{font:500 11.5px/1 var(--mono); color:var(--muted); background:var(--bg); border:1px solid var(--line);
+    padding:6px 10px; border-radius:7px}
+  .tag b{color:var(--ink-2);font-weight:600}
+  section{padding:24px clamp(20px,4vw,40px)}
+  section + section{border-top:1px solid var(--line)}
+  .lbl{display:flex; align-items:center; gap:8px; margin-bottom:16px; font:600 11.5px/1 var(--mono);
+    letter-spacing:.12em; text-transform:uppercase; color:var(--muted)}
+  .lbl::before{content:""; width:9px; height:9px; border-radius:2px; background:var(--lime); flex:none}
+  .prose{font-size:15.5px; line-height:1.6; color:var(--ink-2); max-width:64ch}
+  .prose + .prose{margin-top:12px}
+  .flow{display:flex; flex-wrap:wrap; align-items:stretch; gap:8px}
+  .step{flex:1 1 120px; min-width:120px; background:var(--paper); border:1px solid var(--line-2);
+    border-radius:11px; padding:13px 14px; position:relative}
+  .step .n{font:600 10.5px/1 var(--mono); color:var(--faint); letter-spacing:.05em}
+  .step .t{margin-top:7px; font-weight:600; font-size:14px; color:var(--ink)}
+  .step .d{margin-top:3px; font-size:12px; color:var(--muted); line-height:1.4}
+  .step:not(:last-child)::after{content:"→"; position:absolute; right:-13px; top:50%;
+    transform:translateY(-50%); font:500 14px/1 var(--mono); color:var(--line-2); z-index:2}
+  @media(max-width:560px){.step{flex:1 1 100%}
+    .step:not(:last-child)::after{content:"↓"; right:50%; top:auto; bottom:-13px; transform:translateX(50%)}}
+  .cmds{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  @media(max-width:560px){.cmds{grid-template-columns:1fr}}
+  .cmd{display:flex; align-items:center; gap:10px; padding:11px 13px; background:var(--bg);
+    border:1px solid var(--line); border-radius:9px; border-left:3px solid var(--lime)}
+  .cmd .q{font:600 13px/1 var(--mono); color:var(--faint); flex:none}
+  .cmd .x{font:500 13.5px/1.3 var(--sans); color:var(--ink-2)}
+  .sublede{font-size:14px; line-height:1.55; color:var(--muted); max-width:64ch; margin:-6px 0 16px}
+  .sublede b{color:var(--ink-2); font-weight:600}
+  .note{display:flex; gap:12px; padding:15px 17px; background:var(--bg); border:1px solid var(--line);
+    border-left:3px solid var(--lime); border-radius:11px; font-size:14.5px; line-height:1.55; color:var(--ink-2); max-width:64ch}
+  .note b{color:var(--ink); font-weight:600}
+  .caps{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  @media(max-width:560px){.caps{grid-template-columns:1fr}}
+  .cap{background:var(--paper); border:1px solid var(--line-2); border-radius:11px; padding:13px 14px}
+  .cap .ch{display:flex; align-items:center; justify-content:space-between; gap:8px}
+  .cap .ct{font-weight:600; font-size:14px; color:var(--ink)}
+  .cap .cd{margin-top:5px; font-size:12.5px; line-height:1.5; color:var(--muted)}
+  .pill{font:600 9.5px/1 var(--mono); letter-spacing:.04em; padding:4px 7px; border-radius:6px;
+    white-space:nowrap; text-transform:uppercase; flex:none}
+  .pill.ok{color:#3f6212; background:rgba(197,240,75,.32); border:1px solid var(--lime-deep)}
+  .pill.dep{color:var(--muted); background:var(--bg); border:1px solid var(--line-2)}
+  .limits{display:flex; flex-direction:column; gap:10px}
+  .limit{display:flex; gap:11px; font-size:14px; line-height:1.5; color:var(--ink-2); max-width:66ch}
+  .limit::before{content:"×"; color:var(--faint); font:600 13px/1.45 var(--mono); flex:none}
+  .limit b{color:var(--ink); font-weight:600}
+  .graph-wrap{border:1px solid var(--line); border-radius:14px;
+    background:radial-gradient(var(--line) 1px, transparent 1px) 0 0/22px 22px, var(--paper); padding:6px}
+  svg{display:block; width:100%; height:auto}
+  .legend{display:flex; flex-wrap:wrap; gap:14px 20px; margin-top:14px; font:500 12px/1 var(--mono); color:var(--muted)}
+  .legend span{display:inline-flex; align-items:center; gap:7px}
+  .legend i{width:18px; height:0; border-top:2px solid var(--line-2); display:inline-block}
+  .legend i.in{border-top-color:var(--lime-deep)}
+  footer{padding:16px clamp(20px,4vw,40px); background:var(--bg); border-top:1px solid var(--line);
+    display:flex; flex-wrap:wrap; justify-content:space-between; gap:8px; font:500 11.5px/1.5 var(--mono); color:var(--faint)}
+  footer a{color:var(--muted); text-decoration:none; border-bottom:1px solid var(--line-2)}
+</style>
+</head>
+<body>
+<main class="card">
+  <div class="crumb"><b>norml-wp-manager</b> · skill guide · for humans</div>
+  <header>
+    <div class="titlerow">
+      <h1>norml-wp-manager</h1>
+      <span class="ver"><span class="dot"></span>v1.0.0</span>
+    </div>
+    <p class="pitch"><span class="mk">Control your whole WordPress site from Claude</span> — edit pages, publish posts, fix your SEO, just by asking. No developer. No clicking through wp-admin.</p>
+    <div class="tags"><span class="tag"><b>For:</b> Non-technical WordPress site owners</span><span class="tag"><b>Acts on:</b> your live WordPress site</span><span class="tag">content-level · no code</span></div>
+  </header>
+  <section><div class="lbl">The problem</div><p class="prose">You own a WordPress site, but you're not the developer. So the small stuff piles up — a typo on the About page, a price that's out of date, a post that's been 'almost ready' for a week. You click through wp-admin one item at a time, or you send your dev a ticket and wait.</p><p class="prose">This skill clears that backlog in plain English. You say what you want, and Claude does it the same way you would in your dashboard — only faster. Your password never touches the chat, and anything risky is shown to you first.</p></section>
+  <section><div class="lbl">Content, not code</div><div class="note"><span>It's a <b>content tool, not a developer tool</b>. It changes text, images, fields, and settings — it doesn't build features or touch code. Think <b>fix it, fill it, publish it</b> — not &quot;build me a new site.&quot;</span></div></section>
+  <section><div class="lbl">What you can do</div><p class="sublede">What's possible <b>depends on how your site was built</b>. Before it changes anything, Claude scans yours and tells you which of these it can actually do here — it never guesses.</p><div class="caps"><div class="cap"><div class="ch"><span class="ct">Edit content</span><span class="pill ok">most sites</span></div><div class="cd">Fix a typo, reword a headline, swap an image, correct a detail that changed.</div></div><div class="cap"><div class="ch"><span class="ct">Draft here, publish live</span><span class="pill ok">most sites</span></div><div class="cd">Write a post or page in the chat, then publish it with a category, featured image, and SEO title.</div></div><div class="cap"><div class="ch"><span class="ct">New pages from a template</span><span class="pill dep">depends on build</span></div><div class="cd">Duplicate a team or service page and fill in the new content.</div></div><div class="cap"><div class="ch"><span class="ct">Fix your SEO in bulk</span><span class="pill dep">depends on build</span></div><div class="cd">Fill in missing meta descriptions; rewrite titles to target a search term.</div></div><div class="cap"><div class="ch"><span class="ct">Clean the media library</span><span class="pill ok">most sites</span></div><div class="cd">Add alt text to every image that's missing it; tidy titles and captions.</div></div><div class="cap"><div class="ch"><span class="ct">Organize &amp; navigate</span><span class="pill ok">most sites</span></div><div class="cd">Manage categories and tags, reorder your menu, schedule a backlog of drafts.</div></div><div class="cap"><div class="ch"><span class="ct">Users &amp; access</span><span class="pill ok">most sites</span></div><div class="cd">See who can log in, add a teammate, offboard a contractor. (Admin account.)</div></div><div class="cap"><div class="ch"><span class="ct">Custom fields</span><span class="pill dep">depends on build</span></div><div class="cd">Update the hero text, prices, or bios your templates pull from.</div></div></div></section>
+  <section><div class="lbl">How it flows</div><div class="flow"><div class="step"><div class="n">01</div><div class="t">Set up</div><div class="d">One-click WordPress access key, stored safely — never in chat.</div></div><div class="step"><div class="n">02</div><div class="t">It maps your site</div><div class="d">Scans your build, so it knows what it can and can't change.</div></div><div class="step"><div class="n">03</div><div class="t">Ask</div><div class="d">Describe the change you want in plain English.</div></div><div class="step"><div class="n">04</div><div class="t">Confirm &amp; do</div><div class="d">Shows risky changes first, then makes the edit in seconds.</div></div><div class="step"><div class="n">05</div><div class="t">It learns</div><div class="d">Logs every change and gets to know your site over time.</div></div></div></section>
+  <section><div class="lbl">Say this to Claude</div><div class="cmds"><div class="cmd"><span class="q">&ldquo;</span><span class="x">fix the typo on my About page</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">publish the post I wrote — add a category, featured image, and SEO title</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">find every blog post missing a meta description and write one</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">add alt text to every image in my media library that's missing it</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">duplicate my team page for a new hire and fill in their bio</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">rewrite my services page title to rank for 'plumbing in Denver'</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">reorder my main menu and add a 'Pricing' link</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">who has admin access? I'm offboarding a contractor</span></div></div></section>
+  <section><div class="lbl">What it can't do</div><div class="limits"><div class="limit"><span><b>Build features or write code</b> — it fills fields in; it doesn't create them.</span></div><div class="limit"><span><b>Install or update plugins or themes</b> — that stays a wp-admin job.</span></div><div class="limit"><span><b>Rebuild page-builder layouts</b> (Elementor, Bricks) — it edits the fields, not the canvas.</span></div><div class="limit"><span><b>Run store data</b> — WooCommerce prices and stock need the store's own setup.</span></div><div class="limit"><span><b>Make hundreds of edits at once</b> — a few dozen is fine; hundreds is slow.</span></div></div><p class="sublede" style="margin:16px 0 0">Ask for something it can't do, and it tells you straight — and points you to who can.</p></section>
+  
+  <footer>
+    <span>Covers SKILL.md v1.0.0 · generated 2026-06-16</span>
+    <span>deep reference → <a href="readme.md">readme.md</a> · run it → <a href="SKILL.md">SKILL.md</a></span>
+  </footer>
+</main>
+</body>
+</html>

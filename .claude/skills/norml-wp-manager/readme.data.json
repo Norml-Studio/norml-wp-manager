@@ -1,0 +1,63 @@
+{
+  "skill": "norml-wp-manager",
+  "version": "1.0.0",
+  "repo": "norml-wp-manager",
+  "audience": "Non-technical WordPress site owners",
+  "actsOn": "your live WordPress site",
+  "badge": "content-level · no code",
+  "pitch": "Control your whole WordPress site from Claude — edit pages, publish posts, fix your SEO, just by asking. No developer. No clicking through wp-admin.",
+  "pitchMark": "Control your whole WordPress site from Claude",
+  "problem": [
+    "You own a WordPress site, but you're not the developer. So the small stuff piles up — a typo on the About page, a price that's out of date, a post that's been 'almost ready' for a week. You click through wp-admin one item at a time, or you send your dev a ticket and wait.",
+    "This skill clears that backlog in plain English. You say what you want, and Claude does it the same way you would in your dashboard — only faster. Your password never touches the chat, and anything risky is shown to you first."
+  ],
+  "callout": {
+    "label": "Content, not code",
+    "text": "It's a **content tool, not a developer tool**. It changes text, images, fields, and settings — it doesn't build features or touch code. Think **fix it, fill it, publish it** — not \"build me a new site.\""
+  },
+  "capabilities": {
+    "label": "What you can do",
+    "lede": "What's possible **depends on how your site was built**. Before it changes anything, Claude scans yours and tells you which of these it can actually do here — it never guesses.",
+    "items": [
+      { "name": "Edit content", "tag": "most sites", "ok": true, "desc": "Fix a typo, reword a headline, swap an image, correct a detail that changed." },
+      { "name": "Draft here, publish live", "tag": "most sites", "ok": true, "desc": "Write a post or page in the chat, then publish it with a category, featured image, and SEO title." },
+      { "name": "New pages from a template", "tag": "depends on build", "ok": false, "desc": "Duplicate a team or service page and fill in the new content." },
+      { "name": "Fix your SEO in bulk", "tag": "depends on build", "ok": false, "desc": "Fill in missing meta descriptions; rewrite titles to target a search term." },
+      { "name": "Clean the media library", "tag": "most sites", "ok": true, "desc": "Add alt text to every image that's missing it; tidy titles and captions." },
+      { "name": "Organize & navigate", "tag": "most sites", "ok": true, "desc": "Manage categories and tags, reorder your menu, schedule a backlog of drafts." },
+      { "name": "Users & access", "tag": "most sites", "ok": true, "desc": "See who can log in, add a teammate, offboard a contractor. (Admin account.)" },
+      { "name": "Custom fields", "tag": "depends on build", "ok": false, "desc": "Update the hero text, prices, or bios your templates pull from." }
+    ]
+  },
+  "flow": [
+    { "t": "Set up", "d": "One-click WordPress access key, stored safely — never in chat." },
+    { "t": "It maps your site", "d": "Scans your build, so it knows what it can and can't change." },
+    { "t": "Ask", "d": "Describe the change you want in plain English." },
+    { "t": "Confirm & do", "d": "Shows risky changes first, then makes the edit in seconds." },
+    { "t": "It learns", "d": "Logs every change and gets to know your site over time." }
+  ],
+  "commands": [
+    "fix the typo on my About page",
+    "publish the post I wrote — add a category, featured image, and SEO title",
+    "find every blog post missing a meta description and write one",
+    "add alt text to every image in my media library that's missing it",
+    "duplicate my team page for a new hire and fill in their bio",
+    "rewrite my services page title to rank for 'plumbing in Denver'",
+    "reorder my main menu and add a 'Pricing' link",
+    "who has admin access? I'm offboarding a contractor"
+  ],
+  "limits": {
+    "label": "What it can't do",
+    "items": [
+      "**Build features or write code** — it fills fields in; it doesn't create them.",
+      "**Install or update plugins or themes** — that stays a wp-admin job.",
+      "**Rebuild page-builder layouts** (Elementor, Bricks) — it edits the fields, not the canvas.",
+      "**Run store data** — WooCommerce prices and stock need the store's own setup.",
+      "**Make hundreds of edits at once** — a few dozen is fine; hundreds is slow."
+    ],
+    "note": "Ask for something it can't do, and it tells you straight — and points you to who can."
+  },
+  "covers": "1.0.0",
+  "generated": "2026-06-16",
+  "hasHumanMd": true
+}
