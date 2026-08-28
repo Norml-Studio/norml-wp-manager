@@ -1,21 +1,24 @@
 ---
 name: norml-wp-manager
-version: 1.0.0
+version: 1.1.0
 requires_onboarding: true
 description: >
-  Manage a single WordPress site from Claude via the WordPress REST API.
+  Norml WordPress Copilot: manage a single WordPress site through the
+  WordPress REST API from Claude Desktop / Cowork, Claude Code, Codex, or
+  Gemini CLI.
   For non-technical site owners — no SSH, no WP-CLI, no developer tooling.
   Needs WordPress 5.6+ and an admin or editor Application Password. All
-  state for a site lives in one portable folder you name: readable
-  `project-notes.md` + `changelog.md` at the top, machinery in a hidden
+  state for a site lives in one portable folder you name: generated
+  `capabilities.md`, readable `project-notes.md` + `changelog.md` at the top, machinery in a hidden
   `.wpm/` (connection config + the auto-generated site scan; the
-  credential only when no OS keychain is available). Detects Claude Code
-  (Console) vs the Claude desktop app / Cowork (Desktop) and acts
+  credential only when no OS keychain is available). Detects a supported CLI
+  runtime (Console) vs Claude Desktop / Cowork (Desktop) and acts
   accordingly; on Desktop it verifies your site is reachable before
   asking for any credential. The Application Password lives in macOS
   Keychain / Windows Credential Manager / Linux libsecret on Console, or
-  a born-private gitignored file on Desktop — looked up inline, Claude
-  never echoes secrets. Use when the user says "manage my WordPress,"
+  a local browser-to-folder handoff on Desktop — the credential never enters
+  the AI conversation and is immediately imported into a born-private,
+  gitignored file. Use when the user says "WordPress Copilot," "manage my WordPress,"
   "edit a post," "update content," "list plugins," "what's my theme,"
   "scan my site," "publish a draft," "find an ACF field," "update SEO
   meta," "upload a featured image," "set up WordPress access,"
@@ -25,7 +28,9 @@ metadata:
   author: "Norml Studio"
 ---
 
-# norml-wp-manager
+# Norml WordPress Copilot
+
+Installed skill: `norml-wp-manager`
 
 > **Requires onboarding.** Before this skill can do anything, the site must be
 > connected once. If no `*/.wpm/config.json` is found (Console: walking up from
@@ -45,14 +50,15 @@ metadata:
 ## One mental model
 
 Everything Claude knows about a site lives in **one folder the user names** (e.g.
-`acme-marketing/`). Two human-readable files sit at the top (`project-notes.md`,
-`changelog.md`); a hidden `.wpm/` subfolder holds the machinery (connection
+`acme-marketing/`). Three human-readable files sit at the top (`capabilities.md`,
+`project-notes.md`, `changelog.md`); a hidden `.wpm/` subfolder holds the machinery (connection
 config, the credential when applicable, the auto-generated site scan). Delete the
 folder and the skill forgets the site — nothing else on the machine is touched.
 
 ```
 acme-marketing/                    ← THE unit. User-named, visible, one per site. Portable, zip-safe, update-safe.
 ├── README.md                      ← 4 plain lines: what this is / move / delete / "don't hand-edit .wpm/"
+├── capabilities.md                ← generated contract: what this account can do here. Rewritten on capability rescan.
 ├── project-notes.md               ← durable human/AI knowledge. Hand-editable. Survives rescans.
 ├── changelog.md                   ← append-only op + decision + [SCAN] log. Human-readable audit trail.
 └── .wpm/                          ← the machinery (dotted = hidden, brand-neutral).
@@ -74,8 +80,8 @@ acme-marketing/                    ← THE unit. User-named, visible, one per si
    written, read, probed, or created as a side effect.
 2. **Per-site state never lands inside the skill folder** (`~/.claude/skills/…`
    or the desktop skill mount) — skill updates wipe it.
-3. **Network reachability is proven before any credential is requested** (Desktop).
-4. **The credential never enters argv, never enters the transcript, and is born
+3. **Network reachability is proven before any credential is created or handed off** (Desktop).
+4. **The credential never enters argv or the AI transcript, and is born
    private on disk.** The v2.3.0 `-u "$user:$pass"` pattern is a **vulnerability**,
    not a mitigation.
 5. **No security claim the platform doesn't deliver** — no false "owner-read only"
@@ -92,7 +98,9 @@ The skill detects its environment once per session and acts accordingly.
 - **Console** = Claude **Code** (terminal). A real local shell: the OS secret
   store is reachable, an OS dialog can pop, and outbound network is unrestricted.
 - **Desktop** = the Claude **desktop app** + **Cowork**. A cloud sandbox: no OS
-  secret store, no OS dialog, and a default-deny egress allowlist. **This is the
+  secret store, no OS dialog, and a default-deny egress allowlist. The bundled
+  local `connect.html` writes a short-lived handoff directly into the selected
+  site folder, outside the AI conversation. **This is the
   PRIMARY distribution target.**
 
 ### `env` values (four cells)
@@ -220,7 +228,8 @@ how a 403 is diagnosed.
 
 1. **`.wpm/docs/00-connection.md`** — env, who you're connected as + roles, secret
    pointer, last scan time.
-2. **`.wpm/docs/04-rest-capabilities.md`** — *what can I actually do here.* Consult
+2. **`capabilities.md`** — *what can I actually do here.* This is the visible,
+   generated operating contract. Consult
    **BEFORE any write.**
 3. **`.wpm/docs/02-content-model.md`** — does the target post type have
    `show_in_rest`?
@@ -240,10 +249,10 @@ Before any write, check `04`/`02`. If the target surface is **not REST-exposed**
 user: *"this CPT/field isn't reachable over REST; edit it in wp-admin, or have a
 developer flip `show_in_rest`,"* and append a `[LEARNED]` line to `changelog.md`.
 
-> **Never** ask the user for the Application Password in chat on **Console** — the
-> OS dialog captures it. On **Desktop** the AP is pasted into chat **once**, with
-> the chat-retention disclosure (see Onboarding) — there is no OS dialog in the
-> sandbox.
+> **Never** ask the user for the Application Password in chat in any environment.
+> Console captures it through a native OS dialog. Desktop / Cowork captures it in
+> the bundled local `connect.html` handoff, which writes a short-lived,
+> git-ignored file that the importer deletes immediately after authentication.
 
 ## How operations work
 
@@ -318,7 +327,7 @@ Two rungs. **There is no Rung 3.** No crypto theater.
 | Rung | When | Mechanism |
 |---|---|---|
 | **1 — OS secret store** (preferred) | **Console only** | A real OS vault: macOS Keychain (`security`, write via **stdin** not `-w`), Windows Credential Manager (P/Invoke), Linux libsecret (**only if the round-trip probe passes**). The secret never enters chat, never touches a file; captured by a native OS dialog, looked up inline at call time. Service name `norml-wp-manager-{site}`. |
-| **2 — FLOOR: gitignored, born-private raw file** | ALL of Desktop + Linux/Windows console without a working vault | `{site_folder}/.wpm/credential`. Born private: `( umask 077; printf '%s' "$ap" > tmp ); mv -f tmp credential` — **NOT** create-then-`chmod` (which leaves a brief world-readable window). Read via `get_password()` (`cat`), never echoed. Windows floor: lock the ACL with `icacls "<file>" /inheritance:r /grant:r "$env:USERNAME:R"` **before** writing content (POSIX `chmod` is a no-op on NTFS). |
+| **2 — FLOOR: gitignored, born-private raw file** | ALL of Desktop + Linux/Windows console without a working vault | `{site_folder}/.wpm/credential`. Born private: `( umask 077; printf '%s' "$ap" > tmp ); mv -f tmp credential` — **NOT** create-then-`chmod` (which leaves a brief world-readable window). Read via `get_password()` (`cat`), never echoed. Windows floor: lock the ACL with `icacls "<file>" /inheritance:r /grant:r "$env:USERNAME:M"` **before** writing content (POSIX `chmod` is a no-op on NTFS). |
 
 **No Rung 3 (stated plainly, protect it).** There is no zero-infra way to encrypt
 the floor file meaningfully — any key the skill could auto-decrypt with must sit on
@@ -399,7 +408,11 @@ _Scanned: {ISO-8601} · Connected as: {user} ({roles}) · Tier: {secret_store.ki
 Anything that should survive a rescan does **not** go here — it goes in
 `project-notes.md`.
 
-**(b) Curated layer — top-level `project-notes.md` + `changelog.md`.**
+**(b) Visible operating layer — top-level `capabilities.md`.** Generated from the
+Stage 4 REST checks and overwritten on a capability rescan. It is the short human/AI
+contract for what this connected account can read, create, update, and delete here.
+
+**(c) Curated layer — top-level `project-notes.md` + `changelog.md`.**
 Hand/AI-editable, **never touched by a rescan.** (Templates KEPT verbatim from
 v2.3.0; only the write location moved to the site-folder top level.)
 
@@ -495,7 +508,7 @@ blockers, never crash.**
 | **1 — Site basics** | `GET /wp-json` (namespaces, description, gmt_offset) · `GET /wp/v2/settings` (admin; degrade to anon subset) | `01-site.md` | WP version (best-effort, marked approximate), title/tagline/language/posts_per_page/start_of_week, registered REST namespaces, multisite hint |
 | **2 — Content model** | `GET /wp/v2/types` · `GET /wp/v2/taxonomies` · `HEAD …/posts` · `HEAD …/pages` · per-CPT `HEAD /wp/v2/{rest_base}?per_page=1&status=publish` | `02-content-model.md` | post types with **`show_in_rest` per type**, `rest_base`/`hierarchical`/`viewable`; taxonomies + attach map; counts via `X-WP-Total` |
 | **3 — Plugins + theme** | `GET /wp/v2/plugins` (admin) · `GET /wp/v2/themes` (admin) · derive from namespaces | `03-plugins-theme.md` | active theme name+version; plugin inventory grouped by function; detected 3rd-party admin agents; degrade to "not visible at this role" |
-| **4 — REST capability map (derived)** | `OPTIONS` on posts/pages/media + per-CPT (Allow/methods) · `HEAD …/users?roles=administrator` · derive | `04-rest-capabilities.md` | writability matrix per surface at the connected role; known blockers; master **"What REST cannot see"** |
+| **4 — REST capability map (derived)** | `OPTIONS` on posts/pages/media + per-CPT (Allow/methods) · `HEAD …/users?roles=administrator` · derive | `.wpm/docs/04-rest-capabilities.md` + top-level `capabilities.md` | detailed evidence plus the visible writability contract at the connected role; known blockers; master **"What REST cannot see"** |
 
 **"What REST cannot see" (in every doc, mastered in `04`):** exact WP core version;
 PHP/MySQL/server stack/DB size/table prefix/custom tables; `wp-config.php`
@@ -629,8 +642,8 @@ plus the curated `project-notes.md` + `changelog.md` at the top level.
 ## Credentials — hard rules
 
 - **Never** ask the user to paste the Application Password, an API token,
-  or any secret into chat **on Console**. On **Desktop** the AP is pasted
-  **once** during onboarding, with the retention disclosure — and nowhere else.
+  or any secret into chat in **any** environment. Desktop / Cowork uses the
+  bundled local connector handoff; Console uses a native OS dialog.
 - **Never** read or echo the contents of any OS secret-store entry or the floor
   `credential` file. The only thing you ever do with the AP is pipe it through
   `get_password()` into the `restcall` auth FD (or the `PSCredential` on Windows).
@@ -650,13 +663,11 @@ plus the curated `project-notes.md` + `changelog.md` at the top level.
 ## Onboarding
 
 First-run setup is **environment-specific** and follows EXACTLY ONE runbook. The
-deep link, the chat-retention disclosure, and the ordering contracts below are
-immutable.
+connector, no-chat secret boundary, and ordering contracts below are immutable.
 
-### The connector (both environments)
+### The connector
 
-One connector ships with WordPress itself, needs zero infrastructure, and is
-identical in every environment — the built-in **authorize-application** deep link:
+WordPress supplies the built-in **authorize-application** deep link:
 
 ```
 {production_url}/wp-admin/authorize-application.php?app_name=norml-wp-manager-{site_name}
@@ -664,10 +675,11 @@ identical in every environment — the built-in **authorize-application** deep l
 
 User clicks → logs into WP if needed → **"Authorize norml-wp-manager-{site}?"** →
 clicks Yes → copies the 24-character AP shown once. **Console:** the OS dialog
-captures it (Claude never sees it). **Desktop:** it's pasted into chat once (no OS
-dialog in the sandbox). This is the default in both onboarding files; keep manual
-`{url}/wp-admin/profile.php` as a one-line fallback. **No `&success_url=…`** in
-either flow.
+captures it. **Desktop / Cowork:** the bundled local `connect.html` page captures
+it outside chat and writes a one-time `credential.handoff`; the importer locks the
+real `credential`, verifies authentication, runs the site scan, and deletes the
+handoff. Keep manual `{url}/wp-admin/profile.php` as a one-line fallback. **No
+hosted `success_url` relay.**
 
 **Explicitly REJECTED (recorded so no contributor re-adds):**
 
@@ -675,9 +687,9 @@ either flow.
   100%-self-contained on day one and routes a stranger's live WP credential through
   a third-party server. If Norml ever wants it, it's a separate, clearly-branded,
   opt-in product — never a dependency of this MIT skill.
-- ✗ **localhost auto-capture listener** — meaningless on Desktop (sandbox
-  "localhost" ≠ the user's machine). Parked as a possible future Console-only
-  enhancement; the deep link is the shipping connector for both.
+- ✗ **localhost auto-capture listener** — unnecessary. The Desktop connector is a
+  static local file with no network access of its own; WordPress authorization
+  opens separately in the user's browser.
 
 ### Console first-run (no gate) → `onboarding-console.md`
 
@@ -701,11 +713,12 @@ or written until the gate returns reachable:**
 NETWORK GATE (anon GET {site}/wp-json → allowlist fix → re-probe until 200)
   → collect site name / WP username / folder (+ collision / cloud-sync guard)
   → CONNECTOR: one-click authorize deep link
-  → user pastes AP ONCE  (with the chat-retention disclosure)
-  → write {site_folder}/.wpm/credential (born umask 077) + .wpm/.gitignore ; drop in-memory AP
+  → open bundled connect.html locally; paste the AP into that local-only form
+  → choose the site folder; browser writes .wpm/credential.handoff + config + .gitignore without network access
+  → import-desktop-handoff rewrites .wpm/credential born-private, verifies auth, and deletes the handoff
   → ASSERTIVE GITIGNORE GATE: if git present, `git check-ignore credential` MUST return it, else BACK OUT the secret + warn
   → authenticated GET /wp/v2/users/me  (now guaranteed to reach WP)
-  → scan (00→04) ; scaffold README + project-notes + changelog
+  → scan (00→04) ; generate capabilities.md ; scaffold README + project-notes + changelog
   → report what was created + SECURITY FLAGS
   → offer end-of-session AP revoke as the DEFAULT close-out
 ```
@@ -714,12 +727,16 @@ NETWORK GATE (anon GET {site}/wp-json → allowlist fix → re-probe until 200)
 200 **AND** the auth check succeeds. If setup aborts mid-way, remove the empty
 `.wpm/` scaffold — no stray folders or half-written password left behind.
 
-### Chat-retention disclosure (Desktop — show verbatim before the paste)
+### Desktop secret handoff — no chat paste
 
-> *"Pasting it here means the password is saved in this conversation's history (on
-> Claude's servers) for as long as the conversation is retained. That's why we (a)
-> recommend an editor-role password and (b) recommend you revoke + regenerate this
-> password at the end of your session — it costs nothing and closes the exposure."*
+Open the bundled `connect.html` in Chrome or Edge. It is a self-contained local
+file with network access disabled. The user pastes the Application Password into
+that local page and chooses the site folder; the page writes a short-lived
+`.wpm/credential.handoff`. The skill then runs `scripts/import-desktop-handoff.sh`
+or `.ps1`, validates the credential without echoing it, rewrites it with the
+platform's private-file controls, deletes the handoff, and runs the scan. If the
+runtime cannot use the local connector, hard-stop and route to a Console install;
+never downgrade to asking for the secret in chat.
 
 ### Required post-setup SECURITY FLAGS (both environments)
 
@@ -872,7 +889,8 @@ WooCommerce, ACF Pro).
 | The skill itself | `~/.claude/skills/norml-wp-manager/` (Console) or the desktop skill mount | Auto-loaded + auto-updated. **Never holds per-site state.** |
 | Connection config | `{site_folder}/.wpm/config.json` (schema 4, chmod 600) | No secret; zero paths that escape the folder. Move/zip/delete-safe. |
 | **Curated knowledge** | **`{site_folder}/project-notes.md` + `changelog.md`** (top level) | Hand/AI-editable; survives rescans; the compounding memory. |
-| **Generated scan** | **`{site_folder}/.wpm/docs/00–04`** | Do-not-hand-edit; rewritten by rescan; read before every write. |
+| **Visible capability contract** | **`{site_folder}/capabilities.md`** | Generated on connect and Stage 4 rescans; read before every write. |
+| **Generated scan** | **`{site_folder}/.wpm/docs/00–04`** | Do-not-hand-edit evidence; rewritten by rescan. |
 | Application Password (Console) | macOS Keychain / Windows Credential Manager / Linux libsecret, service `norml-wp-manager-{site}` | OS-managed; looked up via `get_password()` at runtime. No `credential` file exists. |
 | Application Password (Desktop / floor) | `{site_folder}/.wpm/credential` (born `umask 077`, gitignored) | Honest plaintext floor; protected by perms + git-exclusion + editor-role + rotation. |
 

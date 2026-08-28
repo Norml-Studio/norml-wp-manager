@@ -21,6 +21,7 @@ found (the `.wpm/` parent) — it is never stored in the file.
     "kind": "portable-file",
     "ref": "credential"
   },
+  "connection_state": "connected",
   "created_at": "2026-06-16T12:00:00Z",
   "last_scan_at": "2026-06-16T12:00:30Z"
 }
@@ -37,6 +38,7 @@ found (the `.wpm/` parent) — it is never stored in the file.
 | `env` | enum | One of `console-macos` \| `console-windows` \| `console-linux` \| `desktop`. Set once at setup by probe. Governs secret lookup, the network gate, and 403 disambiguation. Held for the session. |
 | `secret_store.kind` | enum | One of `macos-keychain` \| `windows-credential-manager` \| `linux-libsecret` \| `portable-file`. The storage tier chosen at setup. |
 | `secret_store.ref` | string | For the three OS-store tiers: the vault service name `norml-wp-manager-{site_name}`. For `portable-file`: the **bare relative** filename `credential` (resolved against `.wpm/`, never absolute — keeps the folder movable). |
+| `connection_state` | enum | Optional during setup. `handoff-pending` after the Desktop connector writes files; `connected` only after the importer authenticates successfully. Terminal setup may omit it. |
 | `created_at` | string | ISO-8601 UTC timestamp of first setup. |
 | `last_scan_at` | string | ISO-8601 UTC timestamp of the last successful scan. Drives the **>7-day staleness check** (pre-flight mentions it once, then proceeds unless declined). |
 

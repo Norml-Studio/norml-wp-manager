@@ -207,8 +207,8 @@ $Time  = Get-Date -Format "HH:mm"
 
 $ReadmePath = Join-Path $SiteFolderResolved "README.md"
 if (-not (Test-Path $ReadmePath)) {
-  if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "README.template.md"))) {
-    $t = Get-Content (Join-Path $TemplatesDir "README.template.md") -Raw
+  if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "readme-template.md"))) {
+    $t = Get-Content (Join-Path $TemplatesDir "readme-template.md") -Raw
     $t = $t -replace '\{SITE_NAME\}', $SiteName
     Set-Content -Path $ReadmePath -Value $t -Encoding UTF8
   } else {
@@ -227,8 +227,8 @@ This folder is everything $APP_SLUG knows about this site.
 
 # project-notes.md — written from the template ((Get-Content) -replace | Set-Content).
 $NotesPath = Join-Path $SiteFolderResolved "project-notes.md"
-if (-not (Test-Path $NotesPath) -and $TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "project-notes.template.md"))) {
-  $t = Get-Content (Join-Path $TemplatesDir "project-notes.template.md") -Raw
+if (-not (Test-Path $NotesPath) -and $TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "project-notes-template.md"))) {
+  $t = Get-Content (Join-Path $TemplatesDir "project-notes-template.md") -Raw
   $t = $t -replace '\{SITE_NAME\}', $SiteName
   Set-Content -Path $NotesPath -Value $t -Encoding UTF8
   Write-Info "Scaffolded $NotesPath"
@@ -236,8 +236,8 @@ if (-not (Test-Path $NotesPath) -and $TemplatesDir -and (Test-Path (Join-Path $T
 
 # changelog.md — written from the template.
 $ChlogPath = Join-Path $SiteFolderResolved "changelog.md"
-if (-not (Test-Path $ChlogPath) -and $TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "changelog.template.md"))) {
-  $t = Get-Content (Join-Path $TemplatesDir "changelog.template.md") -Raw
+if (-not (Test-Path $ChlogPath) -and $TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "changelog-template.md"))) {
+  $t = Get-Content (Join-Path $TemplatesDir "changelog-template.md") -Raw
   $t = $t -replace '\{SITE_NAME\}', $SiteName
   $t = $t -replace '\{TODAY\}', $Today
   $t = $t -replace '\{TIME\}', $Time

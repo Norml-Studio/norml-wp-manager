@@ -1,4 +1,6 @@
-# norml-wp-manager — Onboarding
+# Norml WordPress Copilot — onboarding
+
+Installed skill: `norml-wp-manager`.
 
 Onboarding runs once per site. It collects your site basics, helps you generate a
 WordPress Application Password, stores that password securely, then scans your site
@@ -11,7 +13,7 @@ access."* Claude detects where it's running and follows the right runbook below.
 
 ## Setup is environment-specific — pick your runbook
 
-- **Claude Code (terminal)** → **[`onboarding-console.md`](onboarding-console.md)**.
+- **Claude Code, Codex, or Gemini CLI (terminal)** → **[`onboarding-console.md`](onboarding-console.md)**.
   Your machine, your network — no allowlist to configure. The Application Password
   goes into the OS secret store (macOS Keychain / Windows Credential Manager / Linux
   libsecret) and Claude never sees it.
@@ -19,8 +21,9 @@ access."* Claude detects where it's running and follows the right runbook below.
 - **Claude desktop app / Cowork** → **[`onboarding-desktop.md`](onboarding-desktop.md)**.
   Runs in a cloud sandbox. **Do the network step first** — add your site domain to
   Settings → Capabilities so the sandbox can reach it *before* any password is
-  requested. The password is stored in a protected, git-ignored file inside your
-  site folder.
+  requested. The bundled local connector collects the Application Password
+  outside chat, then a one-time importer moves it into a protected, git-ignored
+  file inside your site folder and deletes the handoff.
 
 Not sure which you're in? Claude figures it out automatically during setup. If
 you're on **claude.ai (web or mobile)**, neither runbook applies — there's no

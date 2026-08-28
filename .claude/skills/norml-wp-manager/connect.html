@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'; connect-src 'none'; img-src 'none'; object-src 'none'; frame-src 'none'; base-uri 'none'; form-action 'none'">
+  <title>Connect Norml WordPress Copilot</title>
+  <style>
+    :root { color-scheme: light; --ink:#102f3e; --muted:#667a83; --paper:#fffdf9; --canvas:#f6f1e8; --line:#d8cec0; --accent:#ff5d0c; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:clamp(20px,5vw,64px); background:var(--canvas); color:var(--ink); font:16px/1.55 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    main { width:min(760px,100%); margin:auto; border:1px solid var(--line); border-radius:12px; background:var(--paper); }
+    header, section { padding:clamp(22px,5vw,40px); }
+    section { border-top:1px solid var(--line); }
+    h1 { max-width:16ch; margin:0; font-size:clamp(34px,7vw,58px); line-height:.98; letter-spacing:-.04em; text-wrap:balance; }
+    h2 { margin:0 0 18px; font-size:24px; line-height:1.1; }
+    p { max-width:62ch; margin:14px 0 0; }
+    .local { display:inline-flex; margin-top:22px; padding:7px 10px; border:1px solid var(--line); border-radius:6px; color:var(--muted); font-size:13px; }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+    label { display:grid; gap:7px; color:var(--muted); font-size:13px; }
+    label.full { grid-column:1/-1; }
+    input { width:100%; min-height:46px; padding:10px 12px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font:inherit; }
+    input:focus-visible, button:focus-visible, a:focus-visible { outline:3px solid var(--accent); outline-offset:2px; }
+    .actions { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+    button, a.button { display:inline-flex; min-height:46px; align-items:center; justify-content:center; padding:0 16px; border:1px solid var(--line); border-radius:6px; background:#fff; color:var(--ink); font:700 14px/1 system-ui,sans-serif; text-decoration:none; cursor:pointer; }
+    button.primary { border-color:var(--accent); background:var(--accent); }
+    button:active, a.button:active { transform:scale(.98); }
+    #authorizeLink[hidden] { display:none; }
+    #status { min-height:24px; margin-top:16px; color:var(--muted); font-size:14px; white-space:pre-wrap; }
+    .warning { margin-top:18px; padding-left:14px; border-left:3px solid var(--accent); }
+    code { font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.92em; }
+    @media (max-width:620px) { .grid { grid-template-columns:1fr; } label.full { grid-column:auto; } .actions > * { width:100%; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Connect WordPress without putting the key in chat.</h1>
+      <p>This page runs entirely on your computer. It makes no network requests and sends nothing to Norml, Claude, or any other service.</p>
+      <span class="local">Local-only connector · network disabled</span>
+    </header>
+
+    <section>
+      <h2>1. Authorize the Copilot in WordPress</h2>
+      <div class="grid">
+        <label class="full">WordPress URL
+          <input id="siteUrl" type="url" inputmode="url" placeholder="https://example.com" autocomplete="url" required>
+        </label>
+        <label>Site folder name
+          <input id="siteSlug" type="text" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" placeholder="example-site" autocomplete="off" required>
+        </label>
+        <label>WordPress login name
+          <input id="wpUser" type="text" placeholder="site-editor" autocomplete="username" required>
+        </label>
+      </div>
+      <div class="actions">
+        <button id="buildLink" type="button">Create authorization link</button>
+        <a id="authorizeLink" class="button" target="_blank" rel="noreferrer" hidden>Open WordPress authorization</a>
+      </div>
+      <p>WordPress will show a separate, revocable Application Password once. Copy that value—never your normal login password.</p>
+    </section>
+
+    <section>
+      <h2>2. Save the one-time local handoff</h2>
+      <label>WordPress Application Password
+        <input id="appPassword" type="password" autocomplete="new-password" placeholder="Paste the value WordPress just showed" required>
+      </label>
+      <p class="warning">Choose the folder where you want this site’s reusable Copilot dossier. The connector creates <code>{site-name}/.wpm/credential.handoff</code>, already excluded from Git. Return to the Copilot immediately so it can validate, lock, import, and delete the handoff.</p>
+      <div class="actions">
+        <button id="save" class="primary" type="button">Choose folder and save handoff</button>
+      </div>
+      <div id="status" role="status" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    const byId = (id) => document.getElementById(id);
+    const siteUrl = byId('siteUrl');
+    const siteSlug = byId('siteSlug');
+    const wpUser = byId('wpUser');
+    const appPassword = byId('appPassword');
+    const authorizeLink = byId('authorizeLink');
+    const status = byId('status');
+    const slugPattern = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
+
+    function normalizedUrl() {
+      const value = siteUrl.value.trim().replace(/\/$/, '');
+      const parsed = new URL(value);
+      const local = parsed.hostname === 'localhost' || parsed.hostname === '127.0.0.1';
+      if (parsed.protocol !== 'https:' && !local) throw new Error('Use an https:// WordPress URL.');
+      return value;
+    }
+
+    function validatedBasics() {
+      const url = normalizedUrl();
+      const slug = siteSlug.value.trim();
+      const user = wpUser.value.trim();
+      if (!slugPattern.test(slug)) throw new Error('The site folder name must use lowercase letters, numbers, and hyphens.');
+      if (!user) throw new Error('Enter the WordPress login name, not the display name.');
+      return {url, slug, user};
+    }
+
+    byId('buildLink').addEventListener('click', () => {
+      try {
+        const {url, slug} = validatedBasics();
+        authorizeLink.href = `${url}/wp-admin/authorize-application.php?app_name=${encodeURIComponent(`norml-wordpress-copilot-${slug}`)}`;
+        authorizeLink.hidden = false;
+        status.textContent = 'Authorization link ready. Open it, approve, and copy the one-time Application Password.';
+      } catch (error) {
+        authorizeLink.hidden = true;
+        status.textContent = error.message;
+      }
+    });
+
+    async function writeText(directory, name, contents) {
+      const handle = await directory.getFileHandle(name, {create:true});
+      const writable = await handle.createWritable();
+      await writable.write(contents);
+      await writable.close();
+    }
+
+    byId('save').addEventListener('click', async () => {
+      try {
+        if (!('showDirectoryPicker' in window)) {
+          throw new Error('This secure folder picker needs Chrome or Edge. Open this file there, or use the CLI version of the Copilot.');
+        }
+        const {url, slug, user} = validatedBasics();
+        const secret = appPassword.value.replace(/\s+/g, '');
+        if (secret.length < 16) throw new Error('The Application Password looks incomplete. Copy the full value WordPress showed.');
+
+        status.textContent = 'Waiting for a folder…';
+        const parent = await window.showDirectoryPicker({mode:'readwrite'});
+        const site = await parent.getDirectoryHandle(slug, {create:true});
+        const wpm = await site.getDirectoryHandle('.wpm', {create:true});
+        await wpm.getDirectoryHandle('docs', {create:true});
+        await writeText(wpm, '.gitignore', 'credential\ncredential.handoff\n');
+        await writeText(wpm, 'config.json', JSON.stringify({
+          schema_version: 4,
+          site_name: slug,
+          production_url: url,
+          wp_user: user,
+          env: 'desktop',
+          secret_store: {kind:'portable-file', ref:'credential'},
+          created_at: new Date().toISOString(),
+          last_scan_at: null,
+          connection_state: 'handoff-pending'
+        }, null, 2) + '\n');
+        await writeText(wpm, 'credential.handoff', secret);
+        appPassword.value = '';
+        status.textContent = `Saved locally in ${parent.name}/${slug}/.wpm/. Return to the Copilot and say: “Connection handoff is ready.”`;
+      } catch (error) {
+        if (error && error.name === 'AbortError') status.textContent = 'No folder was selected. Nothing was written.';
+        else status.textContent = error.message || String(error);
+      }
+    });
+  </script>
+</body>
+</html>

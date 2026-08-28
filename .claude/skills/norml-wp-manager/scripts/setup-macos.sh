@@ -165,8 +165,8 @@ TODAY=$(date '+%Y-%m-%d')
 TIME=$(date '+%H:%M')
 
 if [[ ! -f "$SITE_FOLDER/README.md" ]]; then
-  if [[ -n "$TEMPLATES_DIR" && -f "$TEMPLATES_DIR/README.template.md" ]]; then
-    sed "s/{SITE_NAME}/$SITE_NAME/g" "$TEMPLATES_DIR/README.template.md" > "$SITE_FOLDER/README.md"
+  if [[ -n "$TEMPLATES_DIR" && -f "$TEMPLATES_DIR/readme-template.md" ]]; then
+    sed "s/{SITE_NAME}/$SITE_NAME/g" "$TEMPLATES_DIR/readme-template.md" > "$SITE_FOLDER/README.md"
   else
     cat > "$SITE_FOLDER/README.md" <<EOF
 # $SITE_NAME — WordPress management folder
@@ -182,14 +182,14 @@ EOF
 fi
 
 # project-notes.md — written from the template (sed to a new file, NOT sed -i '').
-if [[ ! -f "$SITE_FOLDER/project-notes.md" && -n "$TEMPLATES_DIR" && -f "$TEMPLATES_DIR/project-notes.template.md" ]]; then
-  sed "s/{SITE_NAME}/$SITE_NAME/g" "$TEMPLATES_DIR/project-notes.template.md" > "$SITE_FOLDER/project-notes.md"
+if [[ ! -f "$SITE_FOLDER/project-notes.md" && -n "$TEMPLATES_DIR" && -f "$TEMPLATES_DIR/project-notes-template.md" ]]; then
+  sed "s/{SITE_NAME}/$SITE_NAME/g" "$TEMPLATES_DIR/project-notes-template.md" > "$SITE_FOLDER/project-notes.md"
   info "Scaffolded $SITE_FOLDER/project-notes.md"
 fi
 
 # changelog.md — written from the template (sed to a new file).
-if [[ ! -f "$SITE_FOLDER/changelog.md" && -n "$TEMPLATES_DIR" && -f "$TEMPLATES_DIR/changelog.template.md" ]]; then
-  sed "s/{SITE_NAME}/$SITE_NAME/g; s/{TODAY}/$TODAY/g; s/{TIME}/$TIME/g" "$TEMPLATES_DIR/changelog.template.md" > "$SITE_FOLDER/changelog.md"
+if [[ ! -f "$SITE_FOLDER/changelog.md" && -n "$TEMPLATES_DIR" && -f "$TEMPLATES_DIR/changelog-template.md" ]]; then
+  sed "s/{SITE_NAME}/$SITE_NAME/g; s/{TODAY}/$TODAY/g; s/{TIME}/$TIME/g" "$TEMPLATES_DIR/changelog-template.md" > "$SITE_FOLDER/changelog.md"
   info "Scaffolded $SITE_FOLDER/changelog.md"
 fi
 

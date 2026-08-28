@@ -1,104 +1,112 @@
-# norml-wp-manager
+# Norml WordPress Copilot
 
-**Control your whole WordPress site from Claude — edit pages, publish posts, and
-fix your SEO, just by asking. No developer. No clicking through wp-admin.**
+Public product name: **Norml WordPress Copilot**. Installed skill: `norml-wp-manager`.
 
-A skill for **non-technical site owners**, in [Claude Code](https://claude.com/claude-code)
-or the Claude desktop app. You describe a change in plain English, and Claude makes
-it the same way you would in your dashboard — only faster. Your password stays on
-your own computer, never in the chat. And the more you use it, the more it learns
-about your site.
+Manage the content and administration layer of a WordPress site from Claude,
+Codex, or Gemini in plain language. It connects through WordPress's built-in REST
+API, maps the site once, writes a visible `capabilities.md`, and checks that map
+before every change.
 
-> **Content-only.** It edits the things you manage day to day — pages, posts, SEO,
-> images, custom content. It doesn't touch your site's code, design files, or
-> database; that's developer work.
+## What it does
 
-## What you can do
+- Edits and publishes pages, posts, media, taxonomies, menus, users, settings,
+  custom post types, and exposed custom fields when the connected WordPress role
+  and REST surface allow it.
+- Scans the site before the first edit and records the content model, plugins,
+  theme, REST namespaces, access level, blockers, and safe operating surface.
+- Keeps the reusable site dossier in one folder on the user's computer—not in the
+  skill package and not in the WordPress theme.
+- Logs changes and asks before risky or broad writes.
 
-Just say what you want:
+## When to reach for it
 
-| You want to… | Just say… |
-|---|---|
-| Make an edit without waiting on your dev | *"Fix the typo on my About page."* |
-| Publish a post properly | *"Publish the post I wrote — add a category, a featured image, and the SEO title."* |
-| Fix the SEO you keep putting off | *"Find every blog post with no meta description and write one."* |
-| Aim a page at a search term | *"Rewrite my services page title to rank for 'plumbing in Denver'."* |
-| Clear a backlog of drafts | *"Schedule these 6 drafts, one every Monday."* |
-| Swap an image | *"Swap the homepage hero for the image I just uploaded."* |
-| Manage case studies, products, portfolio | *"Add a case study with these details and tag it 'Fintech'."* |
-| Stay in control of access | *"Who has admin access? I'm offboarding a contractor."* |
+Use this Copilot for day-to-day site work that a site owner or content team would
+normally do in wp-admin. Use **Norml WordPress Copilot Advanced**
+(`norml-wp-developer`) when the request needs code, theme files, WP-CLI, database
+access, SSH, GitHub, or deployment.
 
-Anything risky, it shows you in full and asks first. And it learns your site as you
-go — so next month's edits are even quicker than today's.
+## How it flows
 
-## Requirements
-
-- **Claude Code** on macOS 12+ / Windows 10+ / Linux (**Console**), or the **Claude
-  desktop app / Cowork** (**Desktop** — a cloud sandbox; less secure, uses a
-  protected file instead of a keychain). The skill detects which one it's in.
-- A **WordPress 5.6+** site (Application Passwords are built into core from 5.6)
-- A **WordPress admin or editor account** on that site
-- `python3` on your PATH (the read-only site scan parses REST output in Python — no
-  pip packages, just the interpreter). `jq` is optional.
-- **Desktop / Cowork only:** add your site domain to **Settings → Capabilities →
-  Allow network egress** *before* setup. The sandbox can't reach your site until you
-  allowlist it, and the skill refuses to ask for a password until it can.
-- **No SSH, no WP-CLI, no developer tooling.**
+1. Install or upload the skill.
+2. Say: **“Set up my WordPress access.”**
+3. Authorize a dedicated WordPress Application Password. The secret is captured
+   outside chat and stored in the OS secret store or a protected local file.
+4. The Copilot tests the connection and analyzes the site read-only.
+5. It writes `capabilities.md`, `project-notes.md`, `changelog.md`, and the detailed
+   generated scan under `.wpm/docs/`.
+6. From then on, ask for WordPress work in plain language.
 
 ## Install
 
-```bash
-npx skills@latest add Norml-Studio/norml-wp-manager --skill=norml-wp-manager -g -a claude-code
-```
-
-That command installs the public GitHub repository into Claude Code's global skill
-directory. Drop `-g` if you want the skill only in the current project. To update a
-previous installation:
+Claude Code:
 
 ```bash
-npx skills@latest update norml-wp-manager -g
+npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a claude-code
 ```
 
-On the **Claude desktop app / Cowork** there's nothing to copy — the skill is mounted
-into your session automatically. Just allowlist your site domain first (see
-Requirements), then run setup.
+Codex:
 
-Then, in Claude: **"Set up my WordPress access."** Claude detects your environment and
-walks you through onboarding in chat. On **Console** a native OS dialog captures your
-Application Password straight into Keychain / Credential Manager / libsecret — you
-never type it into the terminal. On **Desktop** you paste it once and it's written to
-a protected, git-ignored file inside your site folder.
+```bash
+npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a codex
+```
 
-Full step-by-step (Console + Desktop, Windows, troubleshooting):
-**[`INSTALL.md`](.claude/skills/norml-wp-manager/INSTALL.md)**.
+Gemini CLI:
 
-## Everything for a site lives in one folder
+```bash
+npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a gemini-cli
+```
 
-There's no system-wide config directory and nothing per-site lands in the skill
-folder. Each site gets **one folder you name** — readable `project-notes.md` +
-`changelog.md` at the top, and a hidden `.wpm/` holding the connection `config.json`
-(no secrets) and an auto-generated read-only site scan. Move it, zip it, or delete it
-and the skill simply forgets that site — nothing else on your machine is touched.
+Claude Desktop / Cowork uses the standalone ZIP and the bundled local
+`connect.html` onboarding page. See
+[`install.md`](.claude/skills/norml-wp-manager/install.md).
 
-## How your credentials are handled
+## What gets created for each site
 
-- **Console:** your **Application Password** is stored in the **OS secret store** —
-  macOS Keychain / Windows Credential Manager / Linux libsecret (service
-  `norml-wp-manager-{site}`). Claude never sees it.
-- **Desktop / Cowork:** no OS keychain in the sandbox, so the password lives in a
-  protected, git-ignored `credential` file inside your site folder (born owner-only).
-  Use an editor-role password and revoke + regenerate it at the end of a session.
-- The password is handed to `curl` only through a process-substitution file
-  descriptor — it never appears on a command line, in shell history, or in the chat
-  transcript. All authenticated calls are HTTPS-only.
-- You can revoke the Application Password from `wp-admin` at any time.
+```text
+your-site/
+├── README.md
+├── capabilities.md
+├── project-notes.md
+├── changelog.md
+└── .wpm/
+    ├── config.json
+    ├── credential              # file fallback only; gitignored
+    └── docs/
+        ├── 00-connection.md
+        ├── 01-site.md
+        ├── 02-content-model.md
+        ├── 03-plugins-theme.md
+        └── 04-rest-capabilities.md
+```
+
+The top-level `capabilities.md` is the plain-English operating contract. The
+numbered files preserve the evidence behind it. Rescans rewrite generated files
+but never overwrite `project-notes.md` or the append-only `changelog.md`.
+
+## Credential safety
+
+- No WordPress password or Application Password is requested in chat.
+- Terminal runtimes prefer macOS Keychain, Windows Credential Manager, or Linux
+  libsecret.
+- Desktop / Cowork uses a local no-network handoff page. Its one-time handoff file
+  is imported, permission-locked, authenticated, and deleted immediately.
+- Connection metadata never contains the secret. Authenticated requests are HTTPS
+  only.
+- Revoke the dedicated Application Password in wp-admin at any time.
+
+## Boundary
+
+This is the API/content Copilot. It does not edit theme or plugin code, run SQL,
+use SSH, deploy, or pretend a non-REST field is editable. Those requests route to
+Norml WordPress Copilot Advanced.
 
 ## Documentation
 
-- **[Guide](.claude/skills/norml-wp-manager/readme.md)** — what it is, and everything you can do with it (by category). Visual one-pager: [`readme.html`](.claude/skills/norml-wp-manager/readme.html)
-- **[Install guide](.claude/skills/norml-wp-manager/INSTALL.md)** — full setup, troubleshooting, "what's NOT installed"
-- **Onboarding** — environment-specific runbooks: [Console / terminal](.claude/skills/norml-wp-manager/onboarding-console.md) · [Desktop app / Cowork](.claude/skills/norml-wp-manager/onboarding-desktop.md) ([chooser](.claude/skills/norml-wp-manager/onboarding.md))
-- **[Changelog](.claude/skills/norml-wp-manager/changelog.md)** — skill version history (currently v1.0.0)
+- [Human guide](.claude/skills/norml-wp-manager/readme.md)
+- [Visual one-pager](.claude/skills/norml-wp-manager/readme.html)
+- [Installation](.claude/skills/norml-wp-manager/install.md)
+- [Onboarding chooser](.claude/skills/norml-wp-manager/onboarding.md)
+- [Changelog](.claude/skills/norml-wp-manager/changelog.md) — current version 1.1.0
 
 ## License
 

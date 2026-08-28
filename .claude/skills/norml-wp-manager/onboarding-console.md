@@ -1,11 +1,11 @@
-# norml-wp-manager — onboarding (Claude Code / terminal)
+# Norml WordPress Copilot — onboarding (terminal)
 
 > Dual-purpose: a human can read this top to bottom; Claude follows it step by
 > step as the terminal first-run runbook. The matching desktop-app runbook is
 > `onboarding-desktop.md`; the 2-link chooser is `onboarding.md`.
 
-You're running **Claude Code** in a terminal on your own machine. This is the most
-secure setup (**Console mode**):
+You're running **Claude Code, Codex, or Gemini CLI** in a terminal on your own
+machine. This is the most secure setup (**Console mode**):
 
 - Your Application Password goes into the **OS secret store** — macOS Keychain,
   Windows Credential Manager, or Linux libsecret — captured by a native OS dialog.
@@ -31,6 +31,7 @@ kebab-case slug you give it). Open it and you see:
 ```
 acme-marketing/                  ← THE unit. You named it. Visible, portable, safe to move/zip/delete.
 ├── README.md                    ← 4 plain lines: what this is, how to move/delete it
+├── capabilities.md              ← generated plain-English map of what this login can do
 ├── project-notes.md             ← your durable notes + gotchas. Hand-edit freely. Survives rescans.
 ├── changelog.md                 ← append-only log of every change + decision + scan
 └── .wpm/                        ← the machinery (hidden). You don't hand-edit this.
@@ -148,15 +149,18 @@ Claude automatically:
 
 1. Calls `GET /wp-json/wp/v2/users/me` over HTTPS to confirm the credentials work
    (shows your id, name, and **roles**).
-2. Creates the site folder's `README.md`, `project-notes.md`, and `changelog.md`.
+2. Creates the site folder's `README.md`, `capabilities.md`, `project-notes.md`, and
+   `changelog.md`.
 3. Runs the read-only **architecture scan** (GET/HEAD/OPTIONS only) and writes the
    five numbered docs into `.wpm/docs/` — connection + identity, site basics,
-   content model, plugins/theme, and the REST capability map.
+   content model, plugins/theme, and the detailed REST capability evidence. Stage
+   4 also renders the top-level `capabilities.md` so the usable surface is visible
+   without opening the hidden `.wpm/` folder.
 4. Reports what it created and where, plus any **security flags** (below).
 
 After this, just ask in plain English — *"list my plugins,"* *"show my last 10
-posts,"* *"update post 42's title."* Before any edit, Claude reads
-`04-rest-capabilities.md` and `02-content-model.md` first, so it won't fire a doomed
+posts,"* *"update post 42's title."* Before any edit, the Copilot reads
+`capabilities.md` and `02-content-model.md` first, so it won't fire a doomed
 request at something REST can't touch — it'll tell you to edit that in wp-admin (or
 have a developer flip `show_in_rest`) instead.
 
@@ -187,6 +191,7 @@ At the end of setup Claude explicitly calls out, when they apply:
 | OS secret store `norml-wp-manager-{site}` | The Application Password | **Yes — OS-managed**, looked up at runtime |
 | `{site-folder}/.wpm/credential` *(fallback only)* | The Application Password, raw | **Yes — plaintext, chmod 600 + gitignored** |
 | `{site-folder}/.wpm/docs/00–04` | Auto site scan (rescannable, do-not-hand-edit) | No |
+| `{site-folder}/capabilities.md` | Generated plain-English operating contract; refreshed by Stage 4 | No |
 | `{site-folder}/project-notes.md` | Durable workflows + gotchas (yours to edit) | No |
 | `{site-folder}/changelog.md` | Every write + decision + scan | No |
 

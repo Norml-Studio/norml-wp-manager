@@ -225,15 +225,25 @@ NOW_HUMAN="$(date '+%Y-%m-%d %H:%M:%S %Z')"
 
 # ---- Template helper -------------------------------------------------------
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+TPL_ROOT_DIR="$(cd "$SCRIPT_DIR/../templates" 2>/dev/null && pwd || echo "")"
 TPL_DOCS_DIR="$(cd "$SCRIPT_DIR/../templates/docs" 2>/dev/null && pwd || echo "")"
 
 # Write a doc from its template if present, else from a minimal inline fallback.
 # $1 = doc filename (e.g. 00-connection.md); $2 = inline fallback body.
 # Token substitution is done by the caller (we read the template, the caller
 # pipes content through sed). Here we just resolve template-or-fallback text.
-tpl_or_inline() {  # $1 = template basename (00-connection.template.md); $2 = fallback text
+tpl_or_inline() {  # $1 = template basename (00-connection-template.md); $2 = fallback text
   local tpl="$TPL_DOCS_DIR/$1"
   if [[ -n "$TPL_DOCS_DIR" && -f "$tpl" ]]; then
+    cat "$tpl"
+  else
+    printf '%s' "$2"
+  fi
+}
+
+root_tpl_or_inline() {  # $1 = template basename; $2 = fallback text
+  local tpl="$TPL_ROOT_DIR/$1"
+  if [[ -n "$TPL_ROOT_DIR" && -f "$tpl" ]]; then
     cat "$tpl"
   else
     printf '%s' "$2"
@@ -262,6 +272,17 @@ write_doc() {  # $1 = filename, $2 = content
       DELTAS+=("$name: unchanged")
       return 0
     fi
+  fi
+  printf '%s' "$new" > "$path"
+  DELTAS+=("$name: written")
+  echo "Wrote $path"
+}
+
+write_site_doc() {  # $1 = filename, $2 = content
+  local name="$1" new="$2" path="$SITE_FOLDER/$1"
+  if [[ -f "$path" ]] && [[ "$(cat "$path")" == "$new" ]]; then
+    DELTAS+=("$name: unchanged")
+    return 0
   fi
   printf '%s' "$new" > "$path"
   DELTAS+=("$name: written")
@@ -375,7 +396,7 @@ _Scanned: {SCANNED_AT} · Connected as: {WP_USER} ({ROLES}) · Tier: {SECRET_KIN
 - Whether other Application Passwords exist for this user.
 "
 
-CONN_BODY="$(tpl_or_inline 00-connection.template.md "$CONN_INLINE")"
+CONN_BODY="$(tpl_or_inline 00-connection-template.md "$CONN_INLINE")"
 CONN_OUT="$(subst_tokens "$CONN_BODY" \
   "SITE_NAME=$SITE_NAME" \
   "SCANNED_AT=$SCANNED_AT" \
@@ -535,7 +556,7 @@ _Scanned: {SCANNED_AT} · Connected as: {WP_USER} ({ROLES}) · Tier: {SECRET_KIN
 - Exact WordPress core version; PHP / MySQL / server stack.
 - \`wp-config.php\` constants; most of \`wp_options\`.
 "
-  S1_BODY="$(tpl_or_inline 01-site.template.md "$S1_INLINE")"
+  S1_BODY="$(tpl_or_inline 01-site-template.md "$S1_INLINE")"
   S1_OUT="$(subst_tokens "$S1_BODY" "${HDR_PAIRS[@]}" \
     "SITE_TITLE=${SITE_TITLE:-?}" \
     "SITE_DESC=${SITE_DESC:-?}" \
@@ -636,7 +657,7 @@ slug,name,rest_base,rest_exposed,hierarchical,attached_to
 ### What REST cannot see here
 - CPTs / taxonomies with \`show_in_rest:false\` are invisible to REST entirely.
 "
-  S2_BODY="$(tpl_or_inline 02-content-model.template.md "$S2_INLINE")"
+  S2_BODY="$(tpl_or_inline 02-content-model-template.md "$S2_INLINE")"
   S2_OUT="$(subst_tokens "$S2_BODY" "${HDR_PAIRS[@]}" \
     "POST_TYPE_ROWS=$POST_TYPE_ROWS" \
     "POST_TYPE_NOTE=$POST_TYPE_NOTE" \
@@ -749,7 +770,7 @@ plugin,name,status,version
 ### What REST cannot see here
 - Theme file tree, plugin settings in \`wp_options\`, mu-plugins / dropins.
 "
-  S3_BODY="$(tpl_or_inline 03-plugins-theme.template.md "$S3_INLINE")"
+  S3_BODY="$(tpl_or_inline 03-plugins-theme-template.md "$S3_INLINE")"
   S3_OUT="$(subst_tokens "$S3_BODY" "${HDR_PAIRS[@]}" \
     "ACTIVE_THEME=$ACTIVE_THEME_DISP" \
     "ACTIVE_THEME_VERSION=$ACTIVE_THEME_VERSION_DISP" \
@@ -829,13 +850,21 @@ surface,rest_base,read,create,update,delete
 - Theme internals; ACF field-group definitions; page-builder blobs; plugin settings.
 - **CPTs / taxonomies with \`show_in_rest:false\` are invisible to REST entirely.**
 "
-  S4_BODY="$(tpl_or_inline 04-rest-capabilities.template.md "$S4_INLINE")"
+  S4_BODY="$(tpl_or_inline 04-rest-capabilities-template.md "$S4_INLINE")"
   S4_OUT="$(subst_tokens "$S4_BODY" "${HDR_PAIRS[@]}" \
     "CAPABILITY_ROWS=$CAPABILITY_ROWS" \
     "ADMIN_COUNT=$ADMIN_COUNT" \
     "ADMIN_COUNT_NOTE=$ADMIN_COUNT_NOTE" \
     "KNOWN_BLOCKERS=$KNOWN_BLOCKERS")"
   write_doc 04-rest-capabilities.md "$S4_OUT"
+
+  PUBLIC_CAPABILITIES_BODY="$(root_tpl_or_inline capabilities-template.md "$S4_INLINE")"
+  PUBLIC_CAPABILITIES_OUT="$(subst_tokens "$PUBLIC_CAPABILITIES_BODY" "${HDR_PAIRS[@]}" \
+    "CAPABILITY_ROWS=$CAPABILITY_ROWS" \
+    "ADMIN_COUNT=$ADMIN_COUNT" \
+    "ADMIN_COUNT_NOTE=$ADMIN_COUNT_NOTE" \
+    "KNOWN_BLOCKERS=$KNOWN_BLOCKERS")"
+  write_site_doc capabilities.md "$PUBLIC_CAPABILITIES_OUT"
 fi
 
 ###############################################################################
@@ -869,7 +898,7 @@ Stage 0 always re-runs first as a reachability gate.
 | rescan plugins / re-check the theme | 3 |
 | recheck what I can edit over REST | 4 |
 "
-  README_BODY="$(tpl_or_inline README.template.md "$README_INLINE")"
+  README_BODY="$(tpl_or_inline readme-template.md "$README_INLINE")"
   # Substitute only safe per-site tokens (a real template may carry these);
   # literal {path}/{N} in the rescan map are left untouched.
   README_BODY="$(subst_tokens "$README_BODY" "SITE_NAME=$SITE_NAME" "SCANNED_AT=$SCANNED_AT")"
@@ -894,3 +923,4 @@ echo "Scan complete."
 echo "Config: $CONFIG_FILE"
 echo "Tier:   $TIER"
 echo "Docs:   $DOCS_DIR/"
+echo "Capabilities: $SITE_FOLDER/capabilities.md"

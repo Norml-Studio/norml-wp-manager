@@ -1,63 +1,64 @@
 {
   "skill": "norml-wp-manager",
-  "version": "1.0.0",
+  "title": "Norml WordPress Copilot",
+  "version": "1.1.0",
   "repo": "norml-wp-manager",
-  "audience": "Non-technical WordPress site owners",
-  "actsOn": "your live WordPress site",
-  "badge": "content-level · no code",
-  "pitch": "Control your whole WordPress site from Claude — edit pages, publish posts, fix your SEO, just by asking. No developer. No clicking through wp-admin.",
-  "pitchMark": "Control your whole WordPress site from Claude",
+  "audience": "WordPress site owners and content teams",
+  "actsOn": "one connected WordPress site through REST",
+  "badge": "API · content and administration",
+  "pitch": "Connect once, let the AI map your WordPress site, then manage the surfaces it can actually reach in plain language.",
+  "pitchMark": "Connect once",
   "problem": [
-    "You own a WordPress site, but you're not the developer. So the small stuff piles up — a typo on the About page, a price that's out of date, a post that's been 'almost ready' for a week. You click through wp-admin one item at a time, or you send your dev a ticket and wait.",
-    "This skill clears that backlog in plain English. You say what you want, and Claude does it the same way you would in your dashboard — only faster. Your password never touches the chat, and anything risky is shown to you first."
+    "Small WordPress changes pile up when the person who knows what should change is not comfortable making it in wp-admin.",
+    "Every site exposes a different mix of content, fields, plugins, and permissions. The Copilot maps this site first and writes the real boundary into capabilities.md instead of guessing."
   ],
   "callout": {
-    "label": "Content, not code",
-    "text": "It's a **content tool, not a developer tool**. It changes text, images, fields, and settings — it doesn't build features or touch code. Think **fix it, fill it, publish it** — not \"build me a new site.\""
+    "label": "API, not server access",
+    "text": "This is the **content and administration Copilot**. Code, WP-CLI, SSH, GitHub, database work, and deployment belong to **Norml WordPress Copilot Advanced**."
   },
   "capabilities": {
-    "label": "What you can do",
-    "lede": "What's possible **depends on how your site was built**. Before it changes anything, Claude scans yours and tells you which of these it can actually do here — it never guesses.",
+    "label": "What it does",
+    "lede": "The generated capability map is specific to the connected role and current site.",
     "items": [
-      { "name": "Edit content", "tag": "most sites", "ok": true, "desc": "Fix a typo, reword a headline, swap an image, correct a detail that changed." },
-      { "name": "Draft here, publish live", "tag": "most sites", "ok": true, "desc": "Write a post or page in the chat, then publish it with a category, featured image, and SEO title." },
-      { "name": "New pages from a template", "tag": "depends on build", "ok": false, "desc": "Duplicate a team or service page and fill in the new content." },
-      { "name": "Fix your SEO in bulk", "tag": "depends on build", "ok": false, "desc": "Fill in missing meta descriptions; rewrite titles to target a search term." },
-      { "name": "Clean the media library", "tag": "most sites", "ok": true, "desc": "Add alt text to every image that's missing it; tidy titles and captions." },
-      { "name": "Organize & navigate", "tag": "most sites", "ok": true, "desc": "Manage categories and tags, reorder your menu, schedule a backlog of drafts." },
-      { "name": "Users & access", "tag": "most sites", "ok": true, "desc": "See who can log in, add a teammate, offboard a contractor. (Admin account.)" },
-      { "name": "Custom fields", "tag": "depends on build", "ok": false, "desc": "Update the hero text, prices, or bios your templates pull from." }
+      {"name": "Edit and publish content", "tag": "REST-gated", "ok": true, "desc": "Pages, posts, media, terms, schedules, and exposed custom content."},
+      {"name": "Map the site once", "tag": "first run", "ok": true, "desc": "Records identity, site basics, content model, plugins, theme, and REST surface."},
+      {"name": "Write capabilities.md", "tag": "visible contract", "ok": true, "desc": "Explains what this login can read, create, update, and delete."},
+      {"name": "Remember safely", "tag": "local dossier", "ok": true, "desc": "Keeps site notes and a change log outside the skill package."},
+      {"name": "Change code or server state", "tag": "Advanced", "ok": false, "desc": "Routes theme, plugin, SSH, database, GitHub, and deployment work onward."}
     ]
   },
   "flow": [
-    { "t": "Set up", "d": "One-click WordPress access key, stored safely — never in chat." },
-    { "t": "It maps your site", "d": "Scans your build, so it knows what it can and can't change." },
-    { "t": "Ask", "d": "Describe the change you want in plain English." },
-    { "t": "Confirm & do", "d": "Shows risky changes first, then makes the edit in seconds." },
-    { "t": "It learns", "d": "Logs every change and gets to know your site over time." }
+    {"t": "Connect", "d": "Authorize a dedicated WordPress Application Password outside chat."},
+    {"t": "Analyze", "d": "Run a read-only scan of the real site and connected role."},
+    {"t": "Explain", "d": "Write capabilities.md and the detailed site dossier."},
+    {"t": "Ask", "d": "Describe the WordPress result you want in plain language."},
+    {"t": "Verify", "d": "Confirm the write and append the durable change log."}
   ],
   "commands": [
+    "explain this site and what you can safely change",
     "fix the typo on my About page",
-    "publish the post I wrote — add a category, featured image, and SEO title",
-    "find every blog post missing a meta description and write one",
-    "add alt text to every image in my media library that's missing it",
-    "duplicate my team page for a new hire and fill in their bio",
-    "rewrite my services page title to rank for 'plumbing in Denver'",
-    "reorder my main menu and add a 'Pricing' link",
-    "who has admin access? I'm offboarding a contractor"
+    "publish this draft with its category and featured image",
+    "show which content types are writable through this login",
+    "find media items missing alt text",
+    "rescan the site; I added a plugin and custom post type"
   ],
   "limits": {
-    "label": "What it can't do",
+    "label": "Boundary",
     "items": [
-      "**Build features or write code** — it fills fields in; it doesn't create them.",
-      "**Install or update plugins or themes** — that stays a wp-admin job.",
-      "**Rebuild page-builder layouts** (Elementor, Bricks) — it edits the fields, not the canvas.",
-      "**Run store data** — WooCommerce prices and stock need the store's own setup.",
-      "**Make hundreds of edits at once** — a few dozen is fine; hundreds is slow."
+      "No theme or plugin code, SSH, WP-CLI, SQL, GitHub, or deployment.",
+      "No claim that a field is editable unless the live REST capability check supports it.",
+      "Opaque page-builder canvas data stays out of scope unless a supported API exposes it safely.",
+      "Broad, destructive, access, and site-wide writes require confirmation."
     ],
-    "note": "Ask for something it can't do, and it tells you straight — and points you to who can."
+    "note": "When REST is the wrong layer, it points to wp-admin or Norml WordPress Copilot Advanced."
   },
-  "covers": "1.0.0",
-  "generated": "2026-06-16",
+  "graph": {
+    "center": "norml-wp-manager",
+    "edges": [
+      {"node": "norml-wp-developer", "dir": "out", "label": "advanced work"}
+    ]
+  },
+  "covers": "1.1.0",
+  "generated": "2026-08-28",
   "hasHumanMd": true
 }

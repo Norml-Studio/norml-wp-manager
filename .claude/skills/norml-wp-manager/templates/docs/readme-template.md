@@ -3,8 +3,9 @@
 
 These five numbered files are **auto-generated** by `scan-site.sh` from a read-only REST
 scan of the site. **Do not hand-edit them** — a rescan overwrites them. Durable, human
-knowledge goes in the curated docs one level up: `../project-notes.md` and
-`../changelog.md` (those are never touched by a rescan).
+knowledge goes in the site-folder root: `project-notes.md` and `changelog.md`
+(those are never touched by a rescan). Stage 4 also writes the root
+`capabilities.md`, the visible operating contract generated from the same evidence.
 
 Last full scan: {SCANNED_AT}
 
@@ -26,7 +27,7 @@ Shared header (every file 00–04, plus this README where noted):
                                                |console-linux|desktop)
   {PROD_URL}             production_url from config.json (trailing slash stripped)
 
-00-connection.template.md (Stage 0 — gate):
+00-connection-template.md (Stage 0 — gate):
   {SECRET_REF}           secret_store.ref (vault service name, or "credential")
   {ANON_PROBE_STATUS}    HTTP status of anon GET {PROD_URL}/wp-json (e.g. 200, 403, 000)
   {ANON_PROBE_TIME}      curl %{time_total} of the anon probe (e.g. "0.42s")
@@ -35,7 +36,7 @@ Shared header (every file 00–04, plus this README where noted):
   {WP_USER_ID}           id from GET /wp/v2/users/me
   {AUTH_RESULT}          human verdict of the authenticated check ("OK 200" / failure)
 
-01-site.template.md (Stage 1):
+01-site-template.md (Stage 1):
   {SITE_TITLE}           settings.title (or anon /wp-json "name")
   {SITE_DESC}            settings.description (or anon /wp-json "description")
   {SITE_LANG}            settings.language
@@ -49,7 +50,7 @@ Shared header (every file 00–04, plus this README where noted):
   {MULTISITE_HINT}       multisite signal ("single-site" / "multisite (likely)")
   {NAMESPACES}           newline-joined REST namespaces from /wp-json
 
-02-content-model.template.md (Stage 2):
+02-content-model-template.md (Stage 2):
   {POST_TYPE_ROWS}       CSV rows: slug,name,rest_base,rest_exposed,hierarchical,viewable
   {POST_TYPE_NOTE}       note (e.g. degrade message, or "N types with show_in_rest:false")
   {TAXONOMY_ROWS}        CSV rows: slug,name,rest_base,rest_exposed,hierarchical,attached_to
@@ -58,7 +59,7 @@ Shared header (every file 00–04, plus this README where noted):
   {PAGE_COUNT}           X-WP-Total for published pages
   {CPT_COUNT_ROWS}       Markdown table rows "| {CPT name} | {count} |" per REST-exposed CPT
 
-03-plugins-theme.template.md (Stage 3 — admin-only, degrades):
+03-plugins-theme-template.md (Stage 3 — admin-only, degrades):
   {ACTIVE_THEME}         active theme name (GET /wp/v2/themes)
   {ACTIVE_THEME_VERSION} active theme version
   {THEME_NOTE}           note (e.g. "not visible at this role" without admin)
@@ -72,21 +73,21 @@ Shared header (every file 00–04, plus this README where noted):
   {MULTILINGUAL_PLUGIN}  detected multilingual plugin (or "—")
   {THIRD_PARTY_AGENTS}   newline-joined remote-admin agents, or "none detected"
 
-04-rest-capabilities.template.md (Stage 4 — operate-phase gate):
+04-rest-capabilities-template.md (Stage 4 — operate-phase gate):
   {CAPABILITY_ROWS}      CSV rows: surface,rest_base,read,create,update,delete
   {ADMIN_COUNT}          X-WP-Total for roles=administrator
   {ADMIN_COUNT_NOTE}     note / security flag when count exceeds threshold
   {KNOWN_BLOCKERS}       Markdown list of non-writable surfaces + reason (or "None found.")
 
 Curated templates (NOT regenerated — seeded once at setup, then hand/AI-edited):
-  changelog.template.md  uses {SITE_NAME}, {TODAY} (YYYY-MM-DD), {TIME} (HH:MM)
-  project-notes.template.md  uses {SITE_NAME}
+  changelog-template.md  uses {SITE_NAME}, {TODAY} (YYYY-MM-DD), {TIME} (HH:MM)
+  project-notes-template.md  uses {SITE_NAME}
 
 Root site-folder template:
-  README.template.md     uses {SITE_NAME}
+  readme-template.md     uses {SITE_NAME}
 
 config.template.json: literal placeholders, NOT token-substituted (the setup script
-  writes config.json field-by-field; see config.schema.md).
+  writes config.json field-by-field; see config-schema.md).
 =============================================================================
 -->
 
@@ -95,11 +96,12 @@ config.template.json: literal placeholders, NOT token-substituted (the setup scr
 Before any WordPress operation, the skill loads the doc set in this exact order:
 
 1. `00-connection.md` — env, network-gate result, who we're connected as.
-2. `04-rest-capabilities.md` — **what can I actually do here.** Consulted BEFORE any
-   write (the operate-phase gate).
-3. `02-content-model.md` — does the target type have `show_in_rest`?
-4. `../project-notes.md` — site-specific gotchas (curated).
-5. last ~20 lines of `../changelog.md` — recent history (curated).
+2. `../../capabilities.md` — **what can I actually do here.** Consulted BEFORE any
+   write (the visible operate-phase gate).
+3. `04-rest-capabilities.md` — detailed endpoint evidence behind the visible map.
+4. `02-content-model.md` — does the target type have `show_in_rest`?
+5. `../../project-notes.md` — site-specific gotchas (curated).
+6. last ~20 lines of `../../changelog.md` — recent history (curated).
 
 If `00`–`04` are missing, the full scan runs inline first.
 
@@ -129,7 +131,7 @@ re-runs first** as a cheap reachability re-check.
 | "refresh site basics" | `0,1` | `00,01` |
 | "redo content model" / "I added a custom post type" | `0,2` | `00,02` |
 | "rescan plugins" / "re-check the theme" | `0,3` | `00,03` |
-| "recheck what I can edit over REST" | `0,4` | `00,04` |
+| "recheck what I can edit over REST" | `0,4` | `00,04` + root `capabilities.md` |
 
 **Rescan rules:** overwrites ONLY the targeted docs; never touches `../project-notes.md`
 or `../changelog.md`; diffs before overwrite and prints a per-doc delta ("post types: +1

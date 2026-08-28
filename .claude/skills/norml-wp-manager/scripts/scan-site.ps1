@@ -162,6 +162,9 @@ function AnonProbe([string]$path) {
 $ScannedAt = (Get-Date).ToUniversalTime().ToString("yyyy-MM-ddTHH:mm:ssZ")
 
 # ---- Template helper -------------------------------------------------------
+$TplRootDir = $null
+$rootMaybe = Join-Path $ScriptDir "..\templates"
+if (Test-Path $rootMaybe) { $TplRootDir = (Resolve-Path $rootMaybe).Path }
 $TplDocsDir = $null
 $maybe = Join-Path $ScriptDir "..\templates\docs"
 if (Test-Path $maybe) { $TplDocsDir = (Resolve-Path $maybe).Path }
@@ -170,6 +173,14 @@ if (Test-Path $maybe) { $TplDocsDir = (Resolve-Path $maybe).Path }
 function Get-TplOrInline([string]$tplBasename, [string]$inline) {
   if ($TplDocsDir) {
     $tpl = Join-Path $TplDocsDir $tplBasename
+    if (Test-Path $tpl) { return (Get-Content $tpl -Raw) }
+  }
+  return $inline
+}
+
+function Get-RootTplOrInline([string]$tplBasename, [string]$inline) {
+  if ($TplRootDir) {
+    $tpl = Join-Path $TplRootDir $tplBasename
     if (Test-Path $tpl) { return (Get-Content $tpl -Raw) }
   }
   return $inline
@@ -193,6 +204,20 @@ function Write-Doc([string]$name, [string]$content) {
   if (Test-Path $path) {
     $existing = Get-Content $path -Raw
     # Normalize trailing newline differences for the comparison only.
+    if ($existing.TrimEnd("`r","`n") -eq $content.TrimEnd("`r","`n")) {
+      $script:Deltas.Add("${name}: unchanged")
+      return
+    }
+  }
+  Set-Content -Path $path -Value $content -Encoding UTF8
+  $script:Deltas.Add("${name}: written")
+  Write-Host "Wrote $path"
+}
+
+function Write-SiteDoc([string]$name, [string]$content) {
+  $path = Join-Path $SiteFolderResolved $name
+  if (Test-Path $path) {
+    $existing = Get-Content $path -Raw
     if ($existing.TrimEnd("`r","`n") -eq $content.TrimEnd("`r","`n")) {
       $script:Deltas.Add("${name}: unchanged")
       return
@@ -347,7 +372,7 @@ _Scanned: {SCANNED_AT} · Connected as: {WP_USER} ({ROLES}) · Tier: {SECRET_KIN
 - Whether other Application Passwords exist for this user.
 "@
 
-$connBody = Get-TplOrInline "00-connection.template.md" $connInline
+$connBody = Get-TplOrInline "00-connection-template.md" $connInline
 $connOut  = Expand-Tokens $connBody @{
   SITE_NAME         = $SiteName
   SCANNED_AT        = $ScannedAt
@@ -482,7 +507,7 @@ _Scanned: {SCANNED_AT} · Connected as: {WP_USER} ({ROLES}) · Tier: {SECRET_KIN
 - Exact WordPress core version; PHP / MySQL / server stack.
 - ``wp-config.php`` constants; most of ``wp_options``.
 "@
-  $s1Body = Get-TplOrInline "01-site.template.md" $s1Inline
+  $s1Body = Get-TplOrInline "01-site-template.md" $s1Inline
   $s1Out  = Expand-Tokens $s1Body (Merge-Pairs @{
     SITE_TITLE          = $(if ($siteTitle) { $siteTitle } else { "?" })
     SITE_DESC           = $(if ($siteDesc) { $siteDesc } else { "?" })
@@ -596,7 +621,7 @@ slug,name,rest_base,rest_exposed,hierarchical,attached_to
 ### What REST cannot see here
 - CPTs / taxonomies with ``show_in_rest:false`` are invisible to REST entirely.
 "@
-  $s2Body = Get-TplOrInline "02-content-model.template.md" $s2Inline
+  $s2Body = Get-TplOrInline "02-content-model-template.md" $s2Inline
   $s2Out  = Expand-Tokens $s2Body (Merge-Pairs @{
     POST_TYPE_ROWS = $postTypeRows
     POST_TYPE_NOTE = $postTypeNote
@@ -739,7 +764,7 @@ plugin,name,status,version
 ### What REST cannot see here
 - Theme file tree, plugin settings in ``wp_options``, mu-plugins / dropins.
 "@
-  $s3Body = Get-TplOrInline "03-plugins-theme.template.md" $s3Inline
+  $s3Body = Get-TplOrInline "03-plugins-theme-template.md" $s3Inline
   $s3Out  = Expand-Tokens $s3Body (Merge-Pairs @{
     ACTIVE_THEME         = $activeThemeDisp
     ACTIVE_THEME_VERSION = $activeThemeVerDisp
@@ -827,7 +852,7 @@ surface,rest_base,read,create,update,delete
 - Theme internals; ACF field-group definitions; page-builder blobs; plugin settings.
 - **CPTs / taxonomies with ``show_in_rest:false`` are invisible to REST entirely.**
 "@
-  $s4Body = Get-TplOrInline "04-rest-capabilities.template.md" $s4Inline
+  $s4Body = Get-TplOrInline "04-rest-capabilities-template.md" $s4Inline
   $s4Out  = Expand-Tokens $s4Body (Merge-Pairs @{
     CAPABILITY_ROWS = $capabilityRows
     ADMIN_COUNT     = $adminCount
@@ -835,6 +860,15 @@ surface,rest_base,read,create,update,delete
     KNOWN_BLOCKERS  = $knownBlockers.TrimEnd("`r","`n")
   })
   Write-Doc "04-rest-capabilities.md" $s4Out
+
+  $publicCapabilitiesBody = Get-RootTplOrInline "capabilities-template.md" $s4Inline
+  $publicCapabilitiesOut = Expand-Tokens $publicCapabilitiesBody (Merge-Pairs @{
+    CAPABILITY_ROWS = $capabilityRows
+    ADMIN_COUNT = $adminCount
+    ADMIN_COUNT_NOTE = $adminCountNote
+    KNOWN_BLOCKERS = $knownBlockers.TrimEnd("`r","`n")
+  })
+  Write-SiteDoc "capabilities.md" $publicCapabilitiesOut
 }
 
 ###############################################################################
@@ -869,7 +903,7 @@ Stage 0 always re-runs first as a reachability gate.
 | rescan plugins / re-check the theme | 3 |
 | recheck what I can edit over REST | 4 |
 "@
-  $readmeBody = Get-TplOrInline "README.template.md" $readmeInline
+  $readmeBody = Get-TplOrInline "readme-template.md" $readmeInline
   # Substitute only safe per-site tokens; literal {path}/{N} are left untouched.
   $readmeBody = Expand-Tokens $readmeBody @{ SITE_NAME = $SiteName; SCANNED_AT = $ScannedAt }
   Write-Doc "README.md" $readmeBody
@@ -895,3 +929,4 @@ Write-Host "Scan complete."
 Write-Host "Config: $ConfigFile"
 Write-Host "Tier:   $Tier"
 Write-Host "Docs:   $DocsDir\"
+Write-Host "Capabilities: $(Join-Path $SiteFolderResolved 'capabilities.md')"

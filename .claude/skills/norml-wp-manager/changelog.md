@@ -3,6 +3,21 @@
 All notable changes to **norml-wp-manager**. This project follows
 [semantic versioning](https://semver.org/).
 
+## [1.1.0] — 2026-08-28
+
+Published the human-facing name **Norml WordPress Copilot** while keeping
+`norml-wp-manager` as the stable installed skill slug. The first scan now renders
+a top-level `capabilities.md` from the live REST surface and connected role, so
+people and agents have one visible operating contract before any write.
+
+Desktop / Cowork onboarding no longer asks for an Application Password in chat.
+The bundled local `connect.html` creates a short-lived, git-ignored handoff; the
+new macOS/Linux and Windows importers permission-lock the handoff, config, and
+credential, verify the connection, delete the handoff after success, scaffold the site dossier, and run
+the full read-only scan. Documentation now distinguishes this API/content Copilot
+from the CLI-only Norml WordPress Copilot Advanced and names Claude Desktop /
+Cowork, Claude Code, Codex, and Gemini CLI explicitly.
+
 ## [1.0.0] — 2026-06-16
 
 Manage a WordPress site from Claude over the REST API — for non-technical site

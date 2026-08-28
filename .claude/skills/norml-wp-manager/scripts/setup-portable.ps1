@@ -333,10 +333,10 @@ try {
 
   # ---- Write the credential — ACL-LOCKED BEFORE content --------------------
   # NTFS has no umask; chmod is a no-op. So: create an EMPTY file, strip
-  # inheritance + grant ONLY the current user Read, THEN write the secret. The
+  # inheritance + grant ONLY the current user Modify, THEN write the secret. The
   # bytes never exist on disk under an inherited (possibly broad) ACL.
   New-Item -ItemType File -Force -Path $CredFile | Out-Null
-  & icacls "$CredFile" /inheritance:r /grant:r "$($env:USERNAME):R" | Out-Null
+  & icacls "$CredFile" /inheritance:r /grant:r "$($env:USERNAME):M" | Out-Null
   if ($LASTEXITCODE -ne 0) {
     Write-Warn "icacls could not lock the credential ACL (exit $LASTEXITCODE)."
     Write-Warn "The file may be readable by other accounts on this PC — rotate the AP weekly."
@@ -405,8 +405,8 @@ try {
 
   $ReadmePath = Join-Path $SiteFolderResolved "README.md"
   if (-not (Test-Path $ReadmePath)) {
-    if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "README.template.md"))) {
-      $t = Get-Content (Join-Path $TemplatesDir "README.template.md") -Raw
+    if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "readme-template.md"))) {
+      $t = Get-Content (Join-Path $TemplatesDir "readme-template.md") -Raw
       $t = $t -replace '\{SITE_NAME\}', $SiteName
       Set-Content -Path $ReadmePath -Value $t -Encoding UTF8
     } else {
@@ -424,16 +424,16 @@ This folder is everything $APP_SLUG knows about this site.
   }
 
   $NotesPath = Join-Path $SiteFolderResolved "project-notes.md"
-  if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "project-notes.template.md")) -and -not (Test-Path $NotesPath)) {
-    $t = Get-Content (Join-Path $TemplatesDir "project-notes.template.md") -Raw
+  if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "project-notes-template.md")) -and -not (Test-Path $NotesPath)) {
+    $t = Get-Content (Join-Path $TemplatesDir "project-notes-template.md") -Raw
     $t = $t -replace '\{SITE_NAME\}', $SiteName
     Set-Content -Path $NotesPath -Value $t -Encoding UTF8
     Write-Info "Scaffolded $NotesPath"
   }
 
   $ChlogPath = Join-Path $SiteFolderResolved "changelog.md"
-  if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "changelog.template.md")) -and -not (Test-Path $ChlogPath)) {
-    $t = Get-Content (Join-Path $TemplatesDir "changelog.template.md") -Raw
+  if ($TemplatesDir -and (Test-Path (Join-Path $TemplatesDir "changelog-template.md")) -and -not (Test-Path $ChlogPath)) {
+    $t = Get-Content (Join-Path $TemplatesDir "changelog-template.md") -Raw
     $t = $t -replace '\{SITE_NAME\}', $SiteName
     $t = $t -replace '\{TODAY\}', $Today
     $t = $t -replace '\{TIME\}', $Time
