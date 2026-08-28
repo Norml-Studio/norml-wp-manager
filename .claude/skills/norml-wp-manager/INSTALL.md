@@ -59,13 +59,20 @@ fully portable, and deleting it makes the skill forget that site entirely.
 > **not** live at `~/.claude/skills/`, and you don't copy anything. Go straight to
 > Step 5 (and read the allowlist callout there first).
 
-If you received this as a zip, unzip it anywhere convenient (Desktop or Downloads is
-a fine default).
+Install the skill directly from its public GitHub repository:
 
-## Step 2 — Copy the skill into Claude's skill folder (Console only)
+```bash
+npx skills@latest add Norml-Studio/norml-wp-manager --skill=norml-wp-manager -g -a claude-code
+```
 
-The skill needs to live in `~/.claude/skills/norml-wp-manager/` so Claude Code picks
-it up automatically in every session.
+This uses the open Skills CLI to install `norml-wp-manager` globally for Claude Code.
+Drop `-g` only if you want it limited to the current project.
+
+## Step 2 — Manual ZIP fallback (Console only)
+
+Skip this step when the command above succeeds. If you received the standalone ZIP,
+unzip it anywhere convenient, then copy the skill into
+`~/.claude/skills/norml-wp-manager/`.
 
 ### macOS
 
@@ -90,7 +97,10 @@ Copy-Item -Recurse -Force "C:\path\to\extracted\norml-wp-manager\.claude\skills\
 
 Replace `C:\path\to\extracted\norml-wp-manager` with the real path.
 
-## Step 3 — Make the scripts executable (macOS only)
+## Step 3 — Make manually copied scripts executable (macOS only)
+
+The Skills CLI preserves the repository's executable permissions. Run this only when
+you used the manual ZIP fallback:
 
 ```bash
 chmod +x ~/.claude/skills/norml-wp-manager/scripts/*.sh

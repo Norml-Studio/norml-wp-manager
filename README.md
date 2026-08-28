@@ -48,10 +48,15 @@ go — so next month's edits are even quicker than today's.
 ## Install
 
 ```bash
-git clone https://github.com/Norml-Studio/norml-wp-manager.git
-mkdir -p ~/.claude/skills
-cp -R norml-wp-manager/.claude/skills/norml-wp-manager ~/.claude/skills/
-chmod +x ~/.claude/skills/norml-wp-manager/scripts/*.sh   # macOS only
+npx skills@latest add Norml-Studio/norml-wp-manager --skill=norml-wp-manager -g -a claude-code
+```
+
+That command installs the public GitHub repository into Claude Code's global skill
+directory. Drop `-g` if you want the skill only in the current project. To update a
+previous installation:
+
+```bash
+npx skills@latest update norml-wp-manager -g
 ```
 
 On the **Claude desktop app / Cowork** there's nothing to copy — the skill is mounted
