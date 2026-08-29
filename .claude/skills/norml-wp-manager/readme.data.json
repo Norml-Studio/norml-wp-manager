@@ -52,6 +52,22 @@
     ],
     "note": "When REST is the wrong layer, it points to wp-admin or Norml WordPress Copilot Advanced."
   },
+  "architecture": {
+    "label": "Inside the skill",
+    "lede": "The installed package separates the runtime boundary, the two onboarding paths, local credential handoff, reusable operations, bundled WordPress knowledge, and generated dossier contracts.",
+    "root": "norml-wp-manager/",
+    "items": [
+      {"path": "SKILL.md", "role": "Runtime entry point, REST capability boundary, safety gates, and request router."},
+      {"path": "onboarding.md", "role": "Chooses terminal or Desktop / Cowork onboarding without mixing their credential paths."},
+      {"path": "onboarding-console.md", "role": "Terminal setup, protected secret capture, connection test, and first read-only scan."},
+      {"path": "onboarding-desktop.md", "role": "Desktop / Cowork setup through a local, short-lived credential handoff."},
+      {"path": "connect.html", "role": "No-network local connector used only for the Desktop / Cowork handoff."},
+      {"path": "scripts/", "role": "Cross-platform setup, import, connection, scanning, and WordPress REST helpers."},
+      {"path": "references/", "role": "Bundled REST, ACF, architecture, plugin, and safety guidance."},
+      {"path": "templates/", "role": "Contracts for capabilities, notes, changelog, config, and the per-site README."}
+    ],
+    "note": "This installed source stays separate from the per-site dossier the Copilot creates on the user’s computer."
+  },
   "graph": {
     "center": "norml-wp-manager",
     "edges": [

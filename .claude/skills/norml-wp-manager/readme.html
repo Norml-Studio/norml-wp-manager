@@ -57,11 +57,12 @@
   .step .n{font:600 10.5px/1 var(--mono); color:var(--faint); letter-spacing:.05em}
   .step .t{margin-top:7px; font-weight:600; font-size:14px; color:var(--ink)}
   .step .d{margin-top:3px; font-size:12px; color:var(--muted); line-height:1.4}
-  .step:not(:last-child)::after{content:"→"; position:absolute; right:-13px; top:50%;
-    transform:translateY(-50%); font:500 14px/1 var(--mono); color:var(--line-2); z-index:2}
+  .step:not(:last-child)::after{content:""; position:absolute; right:-9px; top:50%; width:9px;
+    border-top:1px solid var(--line-2); z-index:2}
   @media(max-width:900px){.step{flex-basis:calc(50% - 4px); min-width:240px}}
   @media(max-width:560px){.step{flex:1 1 100%}
-    .step:not(:last-child)::after{content:"↓"; right:50%; top:auto; bottom:-13px; transform:translateX(50%)}}
+    .step:not(:last-child)::after{right:auto; left:24px; top:auto; bottom:-9px; width:0; height:9px;
+      border-top:0; border-left:1px solid var(--line-2)}}
   .cmds{display:grid; grid-template-columns:1fr 1fr; gap:8px}
   @media(max-width:560px){.cmds{grid-template-columns:1fr}}
   .cmd{display:flex; align-items:center; gap:10px; padding:11px 13px; background:var(--bg);
@@ -83,6 +84,20 @@
     white-space:nowrap; text-transform:uppercase; flex:none}
   .pill.ok{color:#3f6212; background:rgba(197,240,75,.32); border:1px solid var(--lime-deep)}
   .pill.dep{color:var(--muted); background:var(--bg); border:1px solid var(--line-2)}
+  .architecture{border-top:1px solid var(--line-2); font-family:var(--mono)}
+  .architecture-root{padding:11px 12px; color:var(--ink); background:var(--bg); border-bottom:1px solid var(--line);
+    font-size:12.5px; font-weight:700; overflow-wrap:anywhere}
+  .architecture-items{display:flex; flex-direction:column}
+  .architecture-item{display:grid; grid-template-columns:minmax(150px,.8fr) minmax(0,1.6fr); gap:18px;
+    align-items:baseline; padding:11px 12px; border-bottom:1px solid var(--line)}
+  .architecture-item code{font:600 12.5px/1.4 var(--mono); color:var(--ink); overflow-wrap:anywhere}
+  .architecture-item span{font:500 12.5px/1.5 var(--sans); color:var(--muted)}
+  .architecture-item span b{color:var(--ink-2); font-weight:600}
+  .architecture-note{margin-top:11px; color:var(--muted); font-size:12.5px; line-height:1.5; max-width:64ch}
+  .architecture-note b{color:var(--ink-2); font-weight:600}
+  @media(max-width:560px){
+    .architecture-item{grid-template-columns:1fr; gap:3px}
+  }
   .limits{display:flex; flex-direction:column; gap:10px}
   .limit{display:flex; gap:11px; font-size:14px; line-height:1.5; color:var(--ink-2); max-width:66ch}
   .limit::before{content:"×"; color:var(--faint); font:600 13px/1.45 var(--mono); flex:none}
@@ -130,6 +145,7 @@
   <section><div class="lbl">The problem</div><p class="prose">Small WordPress changes pile up when the person who knows what should change is not comfortable making it in wp-admin.</p><p class="prose">Every site exposes a different mix of content, fields, plugins, and permissions. The Copilot maps this site first and writes the real boundary into capabilities.md instead of guessing.</p></section>
   <section><div class="lbl">API, not server access</div><div class="note"><span>This is the <b>content and administration Copilot</b>. Code, WP-CLI, SSH, GitHub, database work, and deployment belong to <b>Norml WordPress Copilot Advanced</b>.</span></div></section>
   <section><div class="lbl">What it does</div><p class="sublede">The generated capability map is specific to the connected role and current site.</p><div class="caps"><div class="cap"><div class="ch"><span class="ct">Edit and publish content</span><span class="pill ok">REST-gated</span></div><div class="cd">Pages, posts, media, terms, schedules, and exposed custom content.</div></div><div class="cap"><div class="ch"><span class="ct">Map the site once</span><span class="pill ok">first run</span></div><div class="cd">Records identity, site basics, content model, plugins, theme, and REST surface.</div></div><div class="cap"><div class="ch"><span class="ct">Write capabilities.md</span><span class="pill ok">visible contract</span></div><div class="cd">Explains what this login can read, create, update, and delete.</div></div><div class="cap"><div class="ch"><span class="ct">Remember safely</span><span class="pill ok">local dossier</span></div><div class="cd">Keeps site notes and a change log outside the skill package.</div></div><div class="cap"><div class="ch"><span class="ct">Change code or server state</span><span class="pill dep">Advanced</span></div><div class="cd">Routes theme, plugin, SSH, database, GitHub, and deployment work onward.</div></div></div></section>
+  <section><div class="lbl">Inside the skill</div><p class="sublede">The installed package separates the runtime boundary, the two onboarding paths, local credential handoff, reusable operations, bundled WordPress knowledge, and generated dossier contracts.</p><div class="architecture"><div class="architecture-root">norml-wp-manager/</div><div class="architecture-items"><div class="architecture-item"><code>SKILL.md</code><span>Runtime entry point, REST capability boundary, safety gates, and request router.</span></div><div class="architecture-item"><code>onboarding.md</code><span>Chooses terminal or Desktop / Cowork onboarding without mixing their credential paths.</span></div><div class="architecture-item"><code>onboarding-console.md</code><span>Terminal setup, protected secret capture, connection test, and first read-only scan.</span></div><div class="architecture-item"><code>onboarding-desktop.md</code><span>Desktop / Cowork setup through a local, short-lived credential handoff.</span></div><div class="architecture-item"><code>connect.html</code><span>No-network local connector used only for the Desktop / Cowork handoff.</span></div><div class="architecture-item"><code>scripts/</code><span>Cross-platform setup, import, connection, scanning, and WordPress REST helpers.</span></div><div class="architecture-item"><code>references/</code><span>Bundled REST, ACF, architecture, plugin, and safety guidance.</span></div><div class="architecture-item"><code>templates/</code><span>Contracts for capabilities, notes, changelog, config, and the per-site README.</span></div></div></div><p class="architecture-note">This installed source stays separate from the per-site dossier the Copilot creates on the user’s computer.</p></section>
   <section><div class="lbl">How it flows</div><div class="flow"><div class="step"><div class="n">01</div><div class="t">Connect</div><div class="d">Authorize a dedicated WordPress Application Password outside chat.</div></div><div class="step"><div class="n">02</div><div class="t">Analyze</div><div class="d">Run a read-only scan of the real site and connected role.</div></div><div class="step"><div class="n">03</div><div class="t">Explain</div><div class="d">Write capabilities.md and the detailed site dossier.</div></div><div class="step"><div class="n">04</div><div class="t">Ask</div><div class="d">Describe the WordPress result you want in plain language.</div></div><div class="step"><div class="n">05</div><div class="t">Verify</div><div class="d">Confirm the write and append the durable change log.</div></div></div></section>
   <section><div class="lbl">Say this to Claude</div><div class="cmds"><div class="cmd"><span class="q">&ldquo;</span><span class="x">explain this site and what you can safely change</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">fix the typo on my About page</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">publish this draft with its category and featured image</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">show which content types are writable through this login</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">find media items missing alt text</span></div><div class="cmd"><span class="q">&ldquo;</span><span class="x">rescan the site; I added a plugin and custom post type</span></div></div></section>
   <section><div class="lbl">Boundary</div><div class="limits"><div class="limit"><span>No theme or plugin code, SSH, WP-CLI, SQL, GitHub, or deployment.</span></div><div class="limit"><span>No claim that a field is editable unless the live REST capability check supports it.</span></div><div class="limit"><span>Opaque page-builder canvas data stays out of scope unless a supported API exposes it safely.</span></div><div class="limit"><span>Broad, destructive, access, and site-wide writes require confirmation.</span></div></div><p class="sublede" style="margin:16px 0 0">When REST is the wrong layer, it points to wp-admin or Norml WordPress Copilot Advanced.</p></section>

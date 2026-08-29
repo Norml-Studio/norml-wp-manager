@@ -82,6 +82,22 @@ The folder can live anywhere outside the skill. Generated scan files are replace
 on rescan; `project-notes.md` and `changelog.md` survive. The top-level
 `capabilities.md` is deliberately easy for both the person and the AI to find.
 
+## Inside the skill
+
+| Path | Role |
+|---|---|
+| `SKILL.md` | Runtime entry point, REST capability boundary, safety gates, and request router. |
+| `onboarding.md` | Chooses terminal or Desktop / Cowork onboarding without mixing their credential paths. |
+| `onboarding-console.md` | Terminal setup, protected secret capture, connection test, and first read-only scan. |
+| `onboarding-desktop.md` | Desktop / Cowork setup through a local, short-lived credential handoff. |
+| `connect.html` | No-network local connector used only for the Desktop / Cowork handoff. |
+| `scripts/` | Cross-platform setup, import, connection, scanning, and WordPress REST helpers. |
+| `references/` | Bundled REST, ACF, architecture, plugin, and safety guidance. |
+| `templates/` | Contracts for capabilities, notes, changelog, config, and the per-site README. |
+
+This is the installed `norml-wp-manager/` source. It stays separate from the
+per-site dossier above, which the Copilot creates on the user's computer.
+
 ## Say this to the Copilot
 
 | Need | Example request |
@@ -137,6 +153,8 @@ the real boundary for the connected role and current site.
   one-time importer.
 - Clarified support for Claude Desktop / Cowork, Claude Code, Codex, and Gemini
   CLI, and made the Advanced handoff explicit.
+- Added exact installed-package path/role documentation, kept separate from the
+  generated site dossier.
 
 ---
 

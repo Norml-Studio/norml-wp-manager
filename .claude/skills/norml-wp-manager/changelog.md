@@ -18,6 +18,10 @@ the full read-only scan. Documentation now distinguishes this API/content Copilo
 from the CLI-only Norml WordPress Copilot Advanced and names Claude Desktop /
 Cowork, Claude Code, Codex, and Gemini CLI explicitly.
 
+The paired human guides now include a representative installed-package architecture
+with exact path-to-role explanations, kept separate from the per-site dossier the
+Copilot creates.
+
 ## [1.0.0] — 2026-06-16
 
 Manage a WordPress site from Claude over the REST API — for non-technical site
