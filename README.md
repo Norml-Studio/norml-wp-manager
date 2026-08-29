@@ -2,6 +2,10 @@
 
 Public product name: **Norml WordPress Copilot**. Installed skill: `norml-wp-manager`.
 
+Repository: [`normlstudio/norml-wordpress-copilot`](https://github.com/normlstudio/norml-wordpress-copilot).
+The installed slug remains `norml-wp-manager` so existing installations, local
+site dossiers, and credential references continue to work.
+
 Manage the content and administration layer of a WordPress site from Claude,
 Codex, or Gemini in plain language. It connects through WordPress's built-in REST
 API, maps the site once, writes a visible `capabilities.md`, and checks that map
@@ -41,19 +45,19 @@ access, SSH, GitHub, or deployment.
 Claude Code:
 
 ```bash
-npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a claude-code
+npx skills@latest add normlstudio/norml-wordpress-copilot --skill=norml-wp-manager -g -a claude-code
 ```
 
 Codex:
 
 ```bash
-npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a codex
+npx skills@latest add normlstudio/norml-wordpress-copilot --skill=norml-wp-manager -g -a codex
 ```
 
 Gemini CLI:
 
 ```bash
-npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a gemini-cli
+npx skills@latest add normlstudio/norml-wordpress-copilot --skill=norml-wp-manager -g -a gemini-cli
 ```
 
 Claude Desktop / Cowork uses the standalone ZIP and the bundled local
@@ -106,7 +110,7 @@ Norml WordPress Copilot Advanced.
 - [Visual one-pager](.claude/skills/norml-wp-manager/readme.html)
 - [Installation](.claude/skills/norml-wp-manager/install.md)
 - [Onboarding chooser](.claude/skills/norml-wp-manager/onboarding.md)
-- [Changelog](.claude/skills/norml-wp-manager/changelog.md) — current version 1.1.0
+- [Changelog](.claude/skills/norml-wp-manager/changelog.md) — current version 1.1.1
 
 ## License
 

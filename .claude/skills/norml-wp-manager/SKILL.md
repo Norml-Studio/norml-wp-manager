@@ -1,6 +1,6 @@
 ---
 name: norml-wp-manager
-version: 1.1.0
+version: 1.1.1
 requires_onboarding: true
 description: >
   Norml WordPress Copilot: manage a single WordPress site through the
@@ -219,7 +219,7 @@ how a 403 is diagnosed.
   minimal inline versions of the curated files so setup still completes.
 - A v3 config (found at the old `~/.config/norml-wp-manager/config.json` **or**
   `{project}/norml-wp-manager/config.json`) → **offer one-time migration**, never
-  silently dual-home. See `references/safety-rules.md` and the changelog migration
+  silently dual-home. See `wordpress-guides/safety-rules.md` and the changelog migration
   note; carry `project-notes.md` + `changelog.md` over verbatim, reuse (or
   cleanly re-key) the keychain entry, and **rotate** a floor secret rather than
   byte-copying it.
@@ -362,7 +362,7 @@ PC; rotate weekly and use an editor AP."*
 
 ## Safety classification (apply to every request)
 
-Cross-reference against `references/safety-rules.md`. Three buckets:
+Cross-reference against `wordpress-guides/safety-rules.md`. Three buckets:
 
 - **Safe** — read-only or low-risk single-item edits. Run immediately, then
   report. Examples: `GET /wp/v2/posts`, `GET /wp/v2/users/me`, updating one
@@ -621,16 +621,16 @@ rescans, it belongs in `project-notes.md`.
 Use these reference files to answer "how does WordPress work" questions
 without an API call:
 
-- `references/wordpress-architecture.md` — file layout, DB tables, hook
+- `wordpress-guides/wordpress-architecture.md` — file layout, DB tables, hook
   lifecycle, what each WP component does.
-- `references/rest-api-cookbook.md` — canonical REST API calls organized
+- `wordpress-guides/rest-api-cookbook.md` — canonical REST API calls organized
   by intent (content, ACF, SEO meta, media, users, settings, taxonomies).
-- `references/safety-rules.md` — Safe / Confirm / Stop categories with
+- `wordpress-guides/safety-rules.md` — Safe / Confirm / Stop categories with
   examples, plus credential rotation.
-- `references/acf-guide.md` — how ACF stores fields and how to read/write
+- `wordpress-guides/acf-guide.md` — how ACF stores fields and how to read/write
   them via the REST API (`acf` payload key, ACF Pro defaults, fallback for
   un-REST-exposed groups).
-- `references/plugin-catalog.md` — common WordPress plugins, what each
+- `wordpress-guides/plugin-catalog.md` — common WordPress plugins, what each
   stores, and how to talk to it over REST (which endpoints exist, which
   ones are commonly disabled).
 
@@ -658,7 +658,7 @@ plus the curated `project-notes.md` + `changelog.md` at the top level.
   born-private (`umask 077`) and immediately git-checked.
 - If a secret is leaked (printed, written, or pasted somewhere it
   shouldn't be), tell the user to **rotate** it — revoke in wp-admin, generate a
-  new AP, re-store. The flow is in `references/safety-rules.md → "Rotation."`
+  new AP, re-store. The flow is in `wordpress-guides/safety-rules.md → "Rotation."`
 
 ## Onboarding
 
@@ -865,7 +865,7 @@ restcall "/wp/v2/posts/42" -H "Content-Type: application/json" \
 restcall "/wp/v2/plugins?_fields=plugin,name,status,version"
 ```
 
-See `references/rest-api-cookbook.md` for the full library, including
+See `wordpress-guides/rest-api-cookbook.md` for the full library, including
 media uploads, taxonomies, settings, and per-plugin endpoints (RankMath,
 WooCommerce, ACF Pro).
 

@@ -92,7 +92,7 @@ on rescan; `project-notes.md` and `changelog.md` survive. The top-level
 | `onboarding-desktop.md` | Desktop / Cowork setup through a local, short-lived credential handoff. |
 | `connect.html` | No-network local connector used only for the Desktop / Cowork handoff. |
 | `scripts/` | Cross-platform setup, import, connection, scanning, and WordPress REST helpers. |
-| `references/` | Bundled REST, ACF, architecture, plugin, and safety guidance. |
+| `wordpress-guides/` | Bundled REST, ACF, architecture, plugin, and safety guidance. |
 | `templates/` | Contracts for capabilities, notes, changelog, config, and the per-site README. |
 
 This is the installed `norml-wp-manager/` source. It stays separate from the
@@ -145,6 +145,15 @@ the real boundary for the connected role and current site.
 - **Norml WordPress Copilot Advanced** — CLI-only development surface; SSH +
   GitHub; theme-local `.claude/` project documentation.
 
+## What changed in 1.1.1
+
+- Renamed the public repository to `norml-wordpress-copilot` while retaining the
+  installed `norml-wp-manager` slug for compatibility.
+- Renamed the bundled source folder from `references/` to the descriptive
+  `wordpress-guides/` path and updated its links.
+- Kept runtime behavior, local site dossiers, configuration paths, and credential
+  references unchanged.
+
 ## What changed in 1.1.0
 
 - Added the public product title while retaining the stable installed slug.
@@ -158,5 +167,5 @@ the real boundary for the connected role and current site.
 
 ---
 
-_Covers SKILL.md v1.1.0 | Last changelog entry: v1.1.0 | Generated: 2026-08-28. If
+_Covers SKILL.md v1.1.1 | Last changelog entry: v1.1.1 | Generated: 2026-08-29. If
 the skill behaves differently, trust `SKILL.md` and regenerate this guide._

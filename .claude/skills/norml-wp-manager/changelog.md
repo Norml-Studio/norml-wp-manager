@@ -3,6 +3,16 @@
 All notable changes to **norml-wp-manager**. This project follows
 [semantic versioning](https://semver.org/).
 
+## [1.1.1] — Aug 29, 2026
+
+Renamed the public repository to `norml-wordpress-copilot` so the source URL
+matches the product name while retaining `norml-wp-manager` as the installed
+skill, configuration, and credential compatibility slug.
+
+Moved the generic `references/` folder to `wordpress-guides/` and updated every
+package cross-link. Runtime capabilities, generated site dossiers, credential
+handling, and existing installations are unchanged.
+
 ## [1.1.0] — 2026-08-28
 
 Published the human-facing name **Norml WordPress Copilot** while keeping

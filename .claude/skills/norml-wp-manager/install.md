@@ -3,6 +3,9 @@
 Public product name: **Norml WordPress Copilot**. Installed skill:
 `norml-wp-manager`.
 
+Repository: `normlstudio/norml-wordpress-copilot`. The installed slug remains
+`norml-wp-manager` for compatibility with existing installations and local state.
+
 The first run connects one WordPress site, analyzes it read-only, and creates a
 reusable local site folder with a visible `capabilities.md`. After that, work in
 plain language.
@@ -30,19 +33,19 @@ Choose the command for the environment that will run the skill.
 ### Claude Code
 
 ```bash
-npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a claude-code
+npx skills@latest add normlstudio/norml-wordpress-copilot --skill=norml-wp-manager -g -a claude-code
 ```
 
 ### Codex
 
 ```bash
-npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a codex
+npx skills@latest add normlstudio/norml-wordpress-copilot --skill=norml-wp-manager -g -a codex
 ```
 
 ### Gemini CLI
 
 ```bash
-npx skills@latest add normlstudio/norml-wp-manager --skill=norml-wp-manager -g -a gemini-cli
+npx skills@latest add normlstudio/norml-wordpress-copilot --skill=norml-wp-manager -g -a gemini-cli
 ```
 
 Then open the runtime in the folder where site dossiers should live and say:

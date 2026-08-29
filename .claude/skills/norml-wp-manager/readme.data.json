@@ -1,8 +1,8 @@
 {
   "skill": "norml-wp-manager",
   "title": "Norml WordPress Copilot",
-  "version": "1.1.0",
-  "repo": "norml-wp-manager",
+  "version": "1.1.1",
+  "repo": "norml-wordpress-copilot",
   "audience": "WordPress site owners and content teams",
   "actsOn": "one connected WordPress site through REST",
   "badge": "API · content and administration",
@@ -63,7 +63,7 @@
       {"path": "onboarding-desktop.md", "role": "Desktop / Cowork setup through a local, short-lived credential handoff."},
       {"path": "connect.html", "role": "No-network local connector used only for the Desktop / Cowork handoff."},
       {"path": "scripts/", "role": "Cross-platform setup, import, connection, scanning, and WordPress REST helpers."},
-      {"path": "references/", "role": "Bundled REST, ACF, architecture, plugin, and safety guidance."},
+      {"path": "wordpress-guides/", "role": "Bundled REST, ACF, architecture, plugin, and safety guidance."},
       {"path": "templates/", "role": "Contracts for capabilities, notes, changelog, config, and the per-site README."}
     ],
     "note": "This installed source stays separate from the per-site dossier the Copilot creates on the user’s computer."
@@ -74,7 +74,7 @@
       {"node": "norml-wp-developer", "dir": "out", "label": "advanced work"}
     ]
   },
-  "covers": "1.1.0",
-  "generated": "2026-08-28",
+  "covers": "1.1.1",
+  "generated": "2026-08-29",
   "hasHumanMd": true
 }
